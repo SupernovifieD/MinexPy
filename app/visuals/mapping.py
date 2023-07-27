@@ -1,13 +1,56 @@
 # Import the libraries
 import os
-import matplotlib.pyplot as plt
+import datetime
+import numpy as np
+import pandas as pd
+from scipy.interpolate import griddata
+from matplotlib import pyplot as plt
 from interpolation import Gridding # Import the Gridding class from the interpolation module
 
 # Define a class for mapping
 class Mapping:
+    """
+    This class creates maps for a DataFrame that contains coordinates and concentration values of different elements.
+    It uses the Gridding class to interpolate the values on a square grid of points using a specified method.
+    It plots the grids as images with colorbars and titles, and adds a north arrow to each plot.
+    It saves the plots as png files in a folder on the desktop, and asks the user which columns to map.
+
+    Example:
+
+    # Create a DataFrame with some sample data
+    df = pd.DataFrame({
+        "X": [1, 2, 3, 4, 5],
+        "Y": [1, 2, 3, 4, 5],
+        "Zn": [10, 20, 30, 40, 50],
+        "Pb": [50, 40, 30, 20, 10]
+    })
+
+    # Create a Mapping object with the DataFrame and the parameters
+    m = Mapping(df, "X", "Y", "linear", "viridis", "Map of ")
+
+    # Call the create_maps method to create maps for selected columns
+    m.create_maps()
+
+    # Enter the columns to map when prompted
+    For what columns should the maps be created? 
+    Please use 'space' as a separator. 
+    Zn Pb
+
+    # Check the folder on the desktop for the maps
+    maps generated with MinexPy/
+        Zn_2023-04-06_11-54-03.png
+        Pb_2023-04-06_11-54-04.png
+
+    """
 
     # Initialize the object with the data and the parameters
-    def __init__(self, data, input_X, input_Y, input_interpol, cmap, title):
+    def __init__(self,
+                 data,
+                 input_X,
+                 input_Y,
+                 input_interpol,
+                 cmap,
+                 title):
 
         # Store the data and the parameters as attributes
         self.data = data
@@ -18,65 +61,97 @@ class Mapping:
         self.title = title
 
         # Create a folder on the desktop to store the maps if it does not exist
-        self.folder = os.path.join(os.path.expanduser("~"), "Desktop", "maps generated with MinexPy")
+        self.folder = os.path.join(os.path.expanduser("~"),
+                                   "Desktop",
+                                   "maps generated with MinexPy")
         if not os.path.exists(self.folder):
             os.makedirs(self.folder)
 
     # Define a method to create a single map for a given element column
-    def create_map(self, element):
+    def create_map(self,
+                   element):
 
         # Create a Gridding object for the element column
-        gridder = Gridding(self.data, self.input_X, self.input_Y, self.input_interpol)
+        gridder = Gridding(self.data,
+                           self.input_X,
+                           self.input_Y,
+                           element,
+                           self.input_interpol)
 
         # Get the interpolated grid for the element column
-        grid = gridder.grid[element]
+        grid = gridder.grid
 
         # Create a figure and an axes for plotting
-        fig, ax = plt.subplots(figsize=(12, 9))
+        fig, ax = plt.subplots(figsize=(12,
+                                        9))
 
         # Plot the grid as an image with a colorbar
-        plot = ax.imshow(grid, origin='lower', cmap=plt.get_cmap(self.cmap))
-        cbar = fig.colorbar(plot, ax=ax)
-        cbar.set_label(element, labelpad=+2)
+        plot = ax.imshow(grid,
+                         origin='lower',
+                         cmap=plt.get_cmap(self.cmap),
+                         extent=[min(gridder.column_x),
+                                 max(gridder.column_x),
+                                 min(gridder.column_y),
+                                 max(gridder.column_y)]) # Use the original coordinates as the extent of the image
+        cbar = fig.colorbar(plot,
+                            ax=ax)
+        cbar.set_label(element,
+                       labelpad=+2)
 
-        # Set the title of the plot
-        ax.set_title(f"{self.title} {element}")
+        # Set the title of the plot with a larger font size and a higher position
+        ax.set_title(f"{self.title} {element}",
+                     fontsize=24,
+                     pad=20)
 
-        # Add a north arrow to the plot
+        # Add a north arrow to the plot outside the axes beside the y axis on the left hand side and near the top of the figure
         self.add_north_arrow(ax)
 
-        # Save the figure as a png file in the folder with the element name
-        filename = os.path.join(self.folder, f"{element}.png")
+        # Format the y-axis ticks to show the coordinates without scientific notation
+        ax.yaxis.set_major_formatter(plt.FormatStrFormatter('%.0f'))
+
+        # Save the figure as a png file in the folder with the element name and the date and time
+        filename = os.path.join(self.folder,
+                                f"{element}_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.png")
         fig.savefig(filename)
 
         # Close the figure to free up memory
         plt.close(fig)
 
     # Define a method to add a north arrow to an axes
-    def add_north_arrow(self, ax):
+    def add_north_arrow(self,
+                        ax):
 
         # Define the coordinates and dimensions of the arrow in display space
-        x_tail = 0.95 * ax.figure.bbox.width  # 95% of the figure width from the left
-        y_tail = 0.05 * ax.figure.bbox.height  # 5% of the figure height from the bottom
+        x_tail = 0.05 * ax.figure.bbox.width  # 5% of the figure width from the left
+        y_tail = 0.95 * ax.figure.bbox.height  # 95% of the figure height from the top
         dx = 0  # No horizontal displacement
-        dy = 0.1 * ax.figure.bbox.height  # 10% of the figure height vertical displacement
+        dy = -0.1 * ax.figure.bbox.height  # -10% of the figure height vertical displacement
 
         # Draw an arrow with a text "N" above it using annotation
-        ax.annotate("N", xy=(x_tail + dx/2, y_tail + dy + dy/10), xycoords="figure pixels",
-                    ha="center", va="center", fontsize=20)
-        ax.annotate("", xy=(x_tail + dx, y_tail + dy), xycoords="figure pixels",
-                    xytext=(x_tail, y_tail), textcoords="figure pixels",
-                    arrowprops=dict(arrowstyle="-|>", facecolor="black"))
+        ax.annotate("N",
+                    xy=(x_tail + dx/2,
+                        y_tail + dy + dy/10),
+                    xycoords="figure pixels",
+                    ha="center",
+                    va="center",
+                    fontsize=20)
+        ax.annotate("",
+                    xy=(x_tail + dx,
+                        y_tail + dy),
+                    xycoords="figure pixels",
+                    xytext=(x_tail,
+                            y_tail),
+                    textcoords="figure pixels",
+                    arrowprops=dict(arrowstyle="-|>",
+                                    facecolor="black"))
 
-    # Define a method to create maps for all element columns in parallel using multiprocessing
-    def create_maps_parallel(self):
+    # Define a method to create maps for selected element columns using a for loop
+    def create_maps(self):
 
-        # Import the multiprocessing module
-        import multiprocessing
+        # Ask the user which data columns to map and split them by space
+        input_elements = input("\n For what columns should the maps be created? "
+                               "\n Please use 'space' as a separator. \n")
 
-        # Create a pool of workers with as many processes as there are CPUs available
-        pool = multiprocessing.Pool()
-
-        # Map the create_map method to all element columns in parallel and collect the results
-        results = pool.map(self.create_map, self.data.columns)
-
+        # Loop through the input elements and create a map for each one
+        for element in input_elements.split():
+            self.create_map(element)
