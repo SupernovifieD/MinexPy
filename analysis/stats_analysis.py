@@ -1,12 +1,3 @@
-import utils
-from utils.config import input_elements
-
-data_importer = utils.DataImporter('/Users/yasin/Desktop/ProjectX/Data.csv')
-cleaned_data = data_importer.get_cleaned_data()
-
-# Access the input_elements variable
-columns = input_elements.split()
-
 class DescriptiveStatistics:
     """
     A class that calculates descriptive statistics for a given dataframe.
@@ -87,10 +78,3 @@ class DescriptiveStatistics:
 
         return df
 
-
-
-
-
-
-#stats = DescriptiveStatistics(data=cleaned_data ,columns=columns)
-#print(stats.basic_stats_df())

@@ -1,5 +1,5 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 class DataImporter:
     """
@@ -58,7 +58,3 @@ class DataImporter:
         data = self.import_csv()
         cleaned_data = self.clean_data(data)
         return cleaned_data
-    
-
-# data_importer = DataImporter('/Users/yasin/Desktop/ProjectX/Data.csv')
-# cleaned_data = data_importer.get_cleaned_data()

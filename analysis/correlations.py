@@ -1,8 +1,6 @@
 import pandas as pd
 from scipy import stats
 
-import utils
-
 class Correlation:
     """
     A class used to calculate the Pearson and Spearman correlation coefficients for a dataframe.
@@ -94,15 +92,3 @@ class Correlation:
         print('Here is the Pearson correlation coefficient of the elements:\n', df1 , '\n')
         print('Here is the Spearman correlation coefficient of the elements:\n', df2)
 
-
-from utils.config import input_elements  # import input_elements from config.py file in utils folder
-
-data_importer = utils.DataImporter('/Users/yasin/Desktop/ProjectX/Data.csv')
-cleaned_data = data_importer.get_cleaned_data()
-
-# Access the input_elements variable
-columns = input_elements.split()
-
-c = Correlation(data=cleaned_data, element_concentration=columns)  # create Correlation object with input_elements parameter
-
-print(c.correlation_iterated())  # call correlation_iterated method to calculate correlations between all columns in input_elements parameter
