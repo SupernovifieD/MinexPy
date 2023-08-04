@@ -118,39 +118,22 @@ class Mapping:
         plt.close(fig)
 
     # Define a method to add a north arrow to an axes
-    def add_north_arrow(self,
-                        ax):
+    def add_north_arrow(self, ax):
 
         # Define the coordinates and dimensions of the arrow in display space
-        x_tail = 0.05 * ax.figure.bbox.width  # 5% of the figure width from the left
-        y_tail = 0.95 * ax.figure.bbox.height  # 95% of the figure height from the top
+        x_tail = 0.95 * ax.figure.bbox.width  # 95% of the figure width from the left
+        y_tail = 0.05 * ax.figure.bbox.height  # 5% of the figure height from the bottom
         dx = 0  # No horizontal displacement
-        dy = -0.1 * ax.figure.bbox.height  # -10% of the figure height vertical displacement
+        dy = 0.05 * ax.figure.bbox.height  # 5% of the figure height vertical displacement
 
         # Draw an arrow with a text "N" above it using annotation
-        ax.annotate("N",
-                    xy=(x_tail + dx/2,
-                        y_tail + dy + dy/10),
-                    xycoords="figure pixels",
-                    ha="center",
-                    va="center",
-                    fontsize=20)
-        ax.annotate("",
-                    xy=(x_tail + dx,
-                        y_tail + dy),
-                    xycoords="figure pixels",
-                    xytext=(x_tail,
-                            y_tail),
-                    textcoords="figure pixels",
-                    arrowprops=dict(arrowstyle="-|>",
-                                    facecolor="black"))
-
-    # Define a method to create maps for selected element columns using a for loop
+        ax.annotate("N", xy=(x_tail + dx/2, y_tail + dy + dy/10), xycoords="figure pixels",
+                    ha="center", va="center", fontsize=20)
+        ax.annotate("", xy=(x_tail + dx, y_tail + dy), xycoords="figure pixels",
+                    xytext=(x_tail, y_tail), textcoords="figure pixels",
+                    arrowprops=dict(arrowstyle="-|>", facecolor="black"))
+        # Define a method to create maps for selected element columns using a for loop
     def create_maps(self):
-
-        # Ask the user which data columns to map and split them by space
-        input_elements = input("\n For what columns should the maps be created? "
-                               "\n Please use 'space' as a separator. \n")
 
         # Loop through the input elements and create a map for each one
         for element in input_elements.split():
