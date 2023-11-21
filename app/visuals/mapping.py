@@ -9,42 +9,9 @@ from interpolation import Gridding # Import the Gridding class from the interpol
 
 # Define a class for mapping
 class Mapping:
-    """
-    This class creates maps for a DataFrame that contains coordinates and concentration values of different elements.
-    It uses the Gridding class to interpolate the values on a square grid of points using a specified method.
-    It plots the grids as images with colorbars and titles, and adds a north arrow to each plot.
-    It saves the plots as png files in a folder on the desktop, and asks the user which columns to map.
-
-    Example:
-
-    # Create a DataFrame with some sample data
-    df = pd.DataFrame({
-        "X": [1, 2, 3, 4, 5],
-        "Y": [1, 2, 3, 4, 5],
-        "Zn": [10, 20, 30, 40, 50],
-        "Pb": [50, 40, 30, 20, 10]
-    })
-
-    # Create a Mapping object with the DataFrame and the parameters
-    m = Mapping(df, "X", "Y", "linear", "viridis", "Map of ")
-
-    # Call the create_maps method to create maps for selected columns
-    m.create_maps()
-
-    # Enter the columns to map when prompted
-    For what columns should the maps be created? 
-    Please use 'space' as a separator. 
-    Zn Pb
-
-    # Check the folder on the desktop for the maps
-    maps generated with MinexPy/
-        Zn_2023-04-06_11-54-03.png
-        Pb_2023-04-06_11-54-04.png
-
-    """
-
     # Initialize the object with the data and the parameters
     def __init__(self,
+                 input_elements,
                  data,
                  input_X,
                  input_Y,
@@ -53,6 +20,7 @@ class Mapping:
                  title):
 
         # Store the data and the parameters as attributes
+        self.input_elements = input_elements
         self.data = data
         self.input_X = input_X
         self.input_Y = input_Y
@@ -136,5 +104,5 @@ class Mapping:
     def create_maps(self):
 
         # Loop through the input elements and create a map for each one
-        for element in input_elements.split():
+        for element in self.input_elements.split():
             self.create_map(element)
