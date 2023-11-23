@@ -1,14 +1,23 @@
 import pandas as pd
-from pca import PCAnalysis
+from pca import PCA_Analysis
 from mapping import Mapping
 
-pca = PCAnalysis("~/MinexPy/Data.csv")
+# Loading the data
+data_path = "~/MinexPy/Data.csv"
+df = pd.read_csv(data_path)
 
 input_elements = input("\n For what columns should the geochemical processes be done? "
                        "\n Please use 'space' as a separator. \n")
+
 # Zn Pb Ag Cu Mo Cr Ni Co Ba
 
-_, df, _ = pca.analyze(input_elements)
+# Create an instance of PCA_Analysis
+pca = PCA_Analysis(input_elements)
 
-m = Mapping(input_elements, df, "X", "Y", "linear", "viridis", "Map of ")
+# Process the DataFrame with PCA
+processed_df = pca.create_pc_df(df)  # Assuming create_pc_df is the method to process the DataFrame
+
+# Pass the processed DataFrame to mapping
+
+m = Mapping(input_elements, processed_df, "X", "Y", "linear", "viridis", "Map of ")
 m.create_maps()
