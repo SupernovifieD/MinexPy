@@ -35,17 +35,26 @@ class LineFitting:
         >>> line_fitting.best_fit(X, Y)
         (0.0, 2.0)
         """
-
+        # Convert to numpy arrays for efficient computation
         X = np.array(X)
         Y = np.array(Y)
         
-        n = len(X)
+        # Calculate means of X and Y
         xbar = X.mean()
         ybar = Y.mean()
 
-        numer = np.sum(X * Y) - n * xbar * ybar
-        denum = np.sum(X**2) - n * xbar**2
+        # Calculate the numerator and denominator for the slope (b)
+        numer = np.sum(X * Y) - len(X) * xbar * ybar
+        denum = np.sum(X**2) - len(X) * xbar**2
+
+        # Check if the denominator is zero (to avoid division by zero)
+        if denum == 0:
+            # Handle zero variance situation, maybe return None or raise an exception
+            return None, None
+
+        # Calculate slope (b) and intercept (a)
         b = numer / denum
         a = ybar - b * xbar
 
         return a, b
+
