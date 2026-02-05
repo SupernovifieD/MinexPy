@@ -7,7 +7,7 @@ docs_dir: docs
 
 repo_name: MinexPy
 repo_url: https://github.com/SupernovifieD/MinexPy
-edit_uri: edit/pagestest/docs/  # Update branch name if needed
+edit_uri: edit/main/docs/
 
 theme:
   name: material
@@ -32,19 +32,6 @@ theme:
     - search.suggest
     - search.highlight
     - content.code.annotate
-
-# plugins:
-#   - search
-#   - mkdocstrings:
-#       handlers:
-#         python:
-#           paths: [../]
-#           selection:
-#             docstring_style: google
-#           rendering:
-#             show_source: true
-#             show_root_heading: true
-#             show_root_toc_entry: true
 
 plugins:
   - search
@@ -78,6 +65,8 @@ nav:
   - Getting Started:
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quickstart.md
+  - Research Notes:
+    - Overview: research-notes/index.md
   - User Guide:
     - Overview: user-guide/overview.md
   - API Reference:
