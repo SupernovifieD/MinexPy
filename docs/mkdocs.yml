@@ -1,0 +1,73 @@
+site_name: MinexPy Documentation
+site_description: A toolkit for geoscience researchers
+site_author: Yasin Ghasemi
+site_url: https://SupernovifieD.github.io/MinexPy/
+
+repo_name: MinexPy
+repo_url: https://github.com/SupernovifieD/MinexPy
+edit_uri: edit/pagestest/docs/  # Update branch name if needed
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.annotate
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [../]
+          selection:
+            docstring_style: google
+          rendering:
+            show_source: true
+            show_root_heading: true
+            show_root_toc_entry: true
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+  - User Guide:
+    - Overview: user-guide/overview.md
+  - API Reference:
+    - API: api/index.md
+  - Examples:
+    - Examples: examples/index.md
+

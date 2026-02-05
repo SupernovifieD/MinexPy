@@ -1,13 +1,44 @@
-input_elements = input("\n For what columns should the geochemical processes be done? "
-                       "\n Please use 'space' as a separator. \n")
-# Zn Pb Ag Cu Mo Cr Ni Co Ba
+"""
+MinexPy - A toolkit for geoscience researchers.
 
-input_X = input(" Which column corresponds with X axis of the Catesian system?\n")
-# X
+This package provides tools for geochemical analysis, statistical processing,
+and visualization for geological sample data.
+"""
 
-input_Y = input("\n Which column corresponds with Y axis of the Catesian system?\n")
-# Y
+__version__ = "0.1.0"
 
-input_interpol = input("\n Which interpolation method should be used? cubic, linear, or nearest? "
-                       "Please write the desired one.\n")
-# linear
+# Import main modules for easy access
+from . import stats
+
+# Export commonly used classes and functions
+from .stats import (
+    StatisticalAnalyzer,
+    describe,
+    skewness,
+    kurtosis,
+    std,
+    variance,
+    mean,
+    median,
+    coefficient_of_variation,
+    iqr,
+    percentile,
+    z_score,
+)
+
+__all__ = [
+    'stats',
+    'StatisticalAnalyzer',
+    'describe',
+    'skewness',
+    'kurtosis',
+    'std',
+    'variance',
+    'mean',
+    'median',
+    'coefficient_of_variation',
+    'iqr',
+    'percentile',
+    'z_score',
+]
+
