@@ -3,9 +3,6 @@ site_description: A toolkit for geoscience researchers
 site_author: Yasin Ghasemi
 site_url: https://SupernovifieD.github.io/MinexPy/
 
-docs_dir: .
-site_dir: ../site
-
 
 repo_name: MinexPy
 repo_url: https://github.com/SupernovifieD/MinexPy
