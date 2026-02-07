@@ -38,7 +38,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: [minexpy]
+          paths: [.]
           options:
             docstring_style: google
             show_source: true
