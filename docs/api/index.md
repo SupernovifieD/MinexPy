@@ -4,7 +4,7 @@ This section contains the complete API reference for MinexPy, automatically gene
 
 ## Statistical Analysis Module
 
-::: app.stats
+::: minexpy.stats
     options:
       show_root_heading: true
       show_root_toc_entry: true
@@ -13,7 +13,7 @@ This section contains the complete API reference for MinexPy, automatically gene
 
 ## Main Package
 
-::: app
+::: minexpy
     options:
       show_root_heading: true
       show_root_toc_entry: true
