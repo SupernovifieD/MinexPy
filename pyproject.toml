@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "minexpy"
+version = "0.1.0"
+description = "A practical toolkit for geoscience researchers and students"
+readme = "README.md"
+authors = [
+    {name = "Yasin Ghasemi", email = "st.yasinghasemi@gmail.com"}
+]
+license = {text = "MIT"}
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = ["geoscience", "geochemistry", "geology", "statistics", "mining", "exploration"]
+dependencies = [
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scipy>=1.10.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/SupernovifieD/MinexPy"
+Documentation = "https://SupernovifieD.github.io/MinexPy/"
+Repository = "https://github.com/SupernovifieD/MinexPy"
+"Bug Tracker" = "https://github.com/SupernovifieD/MinexPy/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "black",
+    "flake8",
+    "mypy",
+]
+docs = [
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.0.0",
+    "mkdocstrings[python]>=0.24.0",
+]
+
+[tool.setuptools]
+packages = ["minexpy"]
+
+[tool.setuptools.package-data]
+minexpy = ["py.typed"]
