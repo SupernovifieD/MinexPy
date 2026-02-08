@@ -67,10 +67,10 @@ nav:
     - Quick Start: getting-started/quickstart.md
   - Research Notes:
     - Overview: research-notes/index.md
+    - Statistical Foundations: research-notes/statistical-foundations.md
   - User Guide:
     - Overview: user-guide/overview.md
   - API Reference:
     - API: api/index.md
   - Examples:
     - Examples: examples/index.md
-
