@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "minexpy"
+name = "MinexPy"
 version = "0.1.0"
-description = "A practical toolkit for geoscience researchers and students"
+description = "A python toolkit for geoscience researchers and students"
 readme = "README.md"
 authors = [
     {name = "Yasin Ghasemi", email = "st.yasinghasemi@gmail.com"}

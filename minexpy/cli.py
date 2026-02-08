@@ -194,7 +194,11 @@ Run 'minexpy demo' for more examples!
 
 
 @cli.command()
-@click.option('--topic', type=click.Choice(['basic', 'class', 'dataframe', 'outliers', 'all']), 
+@click.option(
+    '--topic',
+    type=click.Choice(
+        ['basic', 'class', 'dataframe', 'outliers', 'percentiles', 'csv', 'correlation', 'visualization', 'all']
+    ),
               default='all', help='Show examples for specific topic')
 def demo(topic):
     """
@@ -205,6 +209,10 @@ def demo(topic):
     - class: Using StatisticalAnalyzer class
     - dataframe: Multi-column DataFrame analysis
     - outliers: Outlier detection with z-scores
+    - percentiles: Percentile and IQR analysis
+    - csv: CSV workflow example
+    - correlation: Correlation analysis workflows
+    - visualization: Statistical plotting workflows
     - all: Show all examples (default)
     """
     examples = {
@@ -465,6 +473,82 @@ zn_analyzer = StatisticalAnalyzer(df['Zn_ppm'])
 zn_summary = zn_analyzer.summary()
 for stat, value in zn_summary.items():
     print(f"{stat:25s}: {value:.3f}")
+''',
+        'correlation': '''
+┌─────────────────────────────────────────────────────────────────┐
+│          EXAMPLE 7: Correlation Analysis Workflows              │
+└─────────────────────────────────────────────────────────────────┘
+
+# Import libraries
+import numpy as np
+import pandas as pd
+from minexpy.correlation import (
+    pearson_correlation,
+    spearman_correlation,
+    kendall_correlation,
+    distance_correlation,
+    biweight_midcorrelation,
+    partial_correlation,
+    correlation_matrix,
+)
+
+rng = np.random.default_rng(42)
+depth = np.linspace(20, 300, 80)
+zn = 0.15 * depth + rng.normal(0, 4, size=80)
+cu = 0.10 * depth + 0.45 * zn + rng.normal(0, 3, size=80)
+pb = 0.05 * depth + rng.normal(0, 2, size=80)
+
+print("Pairwise correlation between Zn and Cu:")
+print("  Pearson :", pearson_correlation(zn, cu))
+print("  Spearman:", spearman_correlation(zn, cu))
+print("  Kendall :", kendall_correlation(zn, cu))
+print("  Distance:", distance_correlation(zn, cu))
+print("  Biweight:", biweight_midcorrelation(zn, cu))
+print("  Partial (control depth):", partial_correlation(zn, cu, controls=depth))
+
+df = pd.DataFrame({"Zn": zn, "Cu": cu, "Pb": pb})
+print("\\nPearson correlation matrix:")
+print(correlation_matrix(df, method="pearson"))
+
+print("\\nDistance correlation matrix:")
+print(correlation_matrix(df, method="distance"))
+''',
+        'visualization': '''
+┌─────────────────────────────────────────────────────────────────┐
+│      EXAMPLE 8: Statistical Visualization Diagnostics           │
+└─────────────────────────────────────────────────────────────────┘
+
+# Import libraries
+import matplotlib.pyplot as plt
+import numpy as np
+from minexpy.statviz import (
+    plot_histogram,
+    plot_box_violin,
+    plot_ecdf,
+    plot_qq,
+    plot_pp,
+    plot_scatter,
+)
+
+rng = np.random.default_rng(42)
+zn = rng.lognormal(mean=2.2, sigma=0.35, size=250)
+cu = 0.35 * zn + rng.normal(0, 1.5, size=250)
+
+# Histogram (linear and log)
+plot_histogram(zn, bins=30, scale="linear", xlabel="Zn (ppm)", title="Histogram (Linear)")
+plot_histogram(zn, bins=30, scale="log", xlabel="Zn (ppm, log scale)", title="Histogram (Log)")
+
+# Box / violin
+plot_box_violin({"Zn": zn, "Cu": cu}, kind="box", ylabel="Concentration (ppm)", title="Box Plot")
+plot_box_violin({"Zn": zn, "Cu": cu}, kind="violin", ylabel="Concentration (ppm)", title="Violin Plot")
+
+# ECDF, Q-Q, P-P, scatter
+plot_ecdf({"Zn": zn, "Cu": cu}, xlabel="Concentration (ppm)", title="ECDF")
+plot_qq(zn, distribution="norm", ylabel="Zn Sample Quantiles", title="Q-Q Plot")
+plot_pp(zn, distribution="norm", title="P-P Plot")
+plot_scatter(zn, cu, add_trendline=True, xlabel="Zn (ppm)", ylabel="Cu (ppm)", title="Scatter Plot")
+
+plt.show()
 '''
     }
     
@@ -490,6 +574,8 @@ for stat, value in zn_summary.items():
     click.echo()
     click.echo("💡 Tips:")
     click.echo("   - Use 'minexpy demo --topic=basic' to see specific examples")
+    click.echo("   - Use 'minexpy demo --topic=correlation' for correlation workflows")
+    click.echo("   - Use 'minexpy demo --topic=visualization' for plotting workflows")
     click.echo("   - Replace sample data with your own geochemical datasets")
     click.echo("   - Check help for any function: help(minexpy.stats.FUNCTION)")
     click.echo("="*65)

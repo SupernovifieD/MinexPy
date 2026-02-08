@@ -1,14 +1,38 @@
-"""Correlation analysis tools for geoscience datasets.
+"""
+Correlation analysis module for geoscience datasets.
 
-This module provides pairwise correlation functions for continuous and
-rank-based relationships that are commonly used in geoscience workflows.
-It includes classical parametric correlation (Pearson), rank correlations
-(Spearman and Kendall), and robust/nonlinear alternatives (biweight
-midcorrelation and distance correlation).
+This module provides pairwise and matrix-style correlation tools that are
+commonly used in geochemistry, environmental geoscience, and exploration
+analytics. It includes linear, rank-based, nonlinear, and robust measures
+of dependence, plus partial correlation for controlling confounding variables.
 
-The API is designed for practical exploration use-cases where geochemical
-or geophysical variables may contain missing values, outliers, non-normal
-shape, or monotonic but non-linear relationships.
+The functions are designed to be practical for real-world field/lab datasets:
+
+- Pairwise finite-value filtering is applied by default.
+- NaN and infinite values are excluded pairwise.
+- Outputs include interpretable metadata such as sample size and p-values.
+
+Examples
+--------
+Basic pairwise analysis:
+
+    >>> import numpy as np
+    >>> from minexpy.correlation import pearson_correlation, spearman_correlation
+    >>>
+    >>> x = np.array([45.2, 52.3, 38.7, 61.2, 49.8])
+    >>> y = np.array([12.5, 15.3, 11.2, 18.4, 14.1])
+    >>> pearson_correlation(x, y)
+    {'correlation': 0.99..., 'p_value': 0.000..., 'n': 5}
+    >>> spearman_correlation(x, y)
+    {'correlation': 0.99..., 'p_value': 0.000..., 'n': 5}
+
+Matrix-based analysis:
+
+    >>> import pandas as pd
+    >>> from minexpy.correlation import correlation_matrix
+    >>>
+    >>> df = pd.DataFrame({'Zn': x, 'Cu': y})
+    >>> correlation_matrix(df, method='pearson')
 """
 
 from typing import Dict, Mapping, Sequence, Tuple, Union
@@ -32,17 +56,25 @@ __all__ = [
 
 
 def _to_1d_float_array(data: ArrayLike1D, name: str) -> np.ndarray:
-    """Convert array-like input into a validated 1D float NumPy array.
+    """
+    Convert an array-like input into a validated 1D float array.
 
-    Args:
-        data: Input sequence of numeric values.
-        name: Parameter name used for error messages.
+    Parameters
+    ----------
+    data : array-like
+        Input sequence of numeric values.
+    name : str
+        Parameter name used in validation error messages.
 
-    Returns:
-        A one-dimensional ``numpy.ndarray`` with ``dtype=float``.
+    Returns
+    -------
+    numpy.ndarray
+        One-dimensional float array.
 
-    Raises:
-        ValueError: If input is empty or not one-dimensional.
+    Raises
+    ------
+    ValueError
+        If input is empty or not one-dimensional.
     """
     if isinstance(data, pd.Series):
         values = data.to_numpy(dtype=float)
@@ -61,19 +93,28 @@ def _prepare_pair(
     y: ArrayLike1D,
     min_n: int = 2,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Prepare two aligned numeric vectors and remove invalid pairs.
+    """
+    Prepare two aligned vectors and remove invalid numeric pairs.
 
-    Args:
-        x: First input vector.
-        y: Second input vector.
-        min_n: Minimum required number of valid pairs.
+    Parameters
+    ----------
+    x : array-like
+        First input vector.
+    y : array-like
+        Second input vector.
+    min_n : int, default 2
+        Minimum number of valid paired observations required.
 
-    Returns:
-        A tuple of cleaned vectors ``(x_clean, y_clean)`` with pairwise
-        finite-value filtering applied.
+    Returns
+    -------
+    tuple of numpy.ndarray
+        Cleaned vectors ``(x_clean, y_clean)`` after pairwise finite-value
+        filtering.
 
-    Raises:
-        ValueError: If lengths differ or if too few valid pairs remain.
+    Raises
+    ------
+    ValueError
+        If vector lengths differ or too few valid pairs remain.
     """
     x_values = _to_1d_float_array(x, "x")
     y_values = _to_1d_float_array(y, "y")
@@ -95,13 +136,18 @@ def _prepare_pair(
 
 
 def _extract_stat_pvalue(result: object) -> Tuple[float, float]:
-    """Extract statistic and p-value from SciPy correlation results.
+    """
+    Extract statistic and p-value from a SciPy correlation result object.
 
-    Args:
-        result: Object returned by a SciPy correlation function.
+    Parameters
+    ----------
+    result : object
+        Result returned by SciPy correlation routines.
 
-    Returns:
-        A tuple of ``(statistic, p_value)``.
+    Returns
+    -------
+    tuple of float
+        ``(statistic, p_value)`` extracted from the result.
     """
     if hasattr(result, "statistic"):
         statistic = float(getattr(result, "statistic"))
@@ -123,33 +169,49 @@ def pearson_correlation(
     y: ArrayLike1D,
     alternative: str = "two-sided",
 ) -> Dict[str, Union[float, int]]:
-    """Compute Pearson product-moment correlation.
+    """
+    Compute Pearson product-moment correlation coefficient.
 
     Pearson correlation quantifies linear association between two variables.
-    It is sensitive to outliers and assumes approximately linear behavior.
+    It is the standard first-pass measure when data are approximately linear,
+    homoscedastic, and not dominated by outliers.
 
-    Args:
-        x: First numeric variable.
-        y: Second numeric variable.
-        alternative: Alternative hypothesis passed to ``scipy.stats.pearsonr``.
-            Supported values are ``"two-sided"``, ``"greater"``, and
-            ``"less"``.
+    Parameters
+    ----------
+    x : array-like
+        First numeric variable.
+    y : array-like
+        Second numeric variable.
+    alternative : {'two-sided', 'greater', 'less'}, default 'two-sided'
+        Alternative hypothesis used for p-value calculation.
 
-    Returns:
-        A dictionary with:
-        - ``correlation``: Pearson's r in ``[-1, 1]``.
-        - ``p_value``: p-value for testing zero correlation.
-        - ``n``: Number of valid paired observations used.
+    Returns
+    -------
+    dict
+        Dictionary with:
 
-    Raises:
-        ValueError: If inputs are invalid or contain too few valid pairs.
+        - ``correlation`` : Pearson's ``r`` in ``[-1, 1]``.
+        - ``p_value`` : p-value for testing zero linear correlation.
+        - ``n`` : number of paired finite observations used.
 
-    Examples:
-        >>> from minexpy.correlation import pearson_correlation
-        >>> x = [10, 12, 15, 20, 21]
-        >>> y = [3.1, 3.8, 4.2, 5.7, 6.0]
-        >>> pearson_correlation(x, y)
-        {'correlation': 0.985..., 'p_value': 0.002..., 'n': 5}
+    Raises
+    ------
+    ValueError
+        If inputs are invalid or contain too few valid pairs.
+
+    Examples
+    --------
+    >>> from minexpy.correlation import pearson_correlation
+    >>> x = [10, 12, 15, 20, 21]
+    >>> y = [3.1, 3.8, 4.2, 5.7, 6.0]
+    >>> pearson_correlation(x, y)
+    {'correlation': 0.985..., 'p_value': 0.002..., 'n': 5}
+
+    Notes
+    -----
+    Pearson correlation is sensitive to extreme values. For geochemical data
+    with heavy tails or outliers, compare results with Spearman, Kendall, or
+    biweight midcorrelation before interpretation.
     """
     x_clean, y_clean = _prepare_pair(x, y, min_n=2)
     result = scipy_stats.pearsonr(x_clean, y_clean, alternative=alternative)
@@ -167,34 +229,49 @@ def spearman_correlation(
     y: ArrayLike1D,
     alternative: str = "two-sided",
 ) -> Dict[str, Union[float, int]]:
-    """Compute Spearman rank correlation.
+    """
+    Compute Spearman rank correlation coefficient.
 
-    Spearman correlation evaluates monotonic association using ranked values.
-    It is often preferred for skewed geochemical variables and non-normal
-    distributions where monotonic trends are expected.
+    Spearman correlation measures monotonic dependence by correlating ranked
+    values instead of raw values. It is often preferred for skewed geochemical
+    variables and monotonic but nonlinear relationships.
 
-    Args:
-        x: First numeric variable.
-        y: Second numeric variable.
-        alternative: Alternative hypothesis passed to
-            ``scipy.stats.spearmanr``. Supported values are ``"two-sided"``,
-            ``"greater"``, and ``"less"``.
+    Parameters
+    ----------
+    x : array-like
+        First numeric variable.
+    y : array-like
+        Second numeric variable.
+    alternative : {'two-sided', 'greater', 'less'}, default 'two-sided'
+        Alternative hypothesis used for p-value calculation.
 
-    Returns:
-        A dictionary with:
-        - ``correlation``: Spearman's rho in ``[-1, 1]``.
-        - ``p_value``: p-value for testing zero association.
-        - ``n``: Number of valid paired observations used.
+    Returns
+    -------
+    dict
+        Dictionary with:
 
-    Raises:
-        ValueError: If inputs are invalid or contain too few valid pairs.
+        - ``correlation`` : Spearman's ``rho`` in ``[-1, 1]``.
+        - ``p_value`` : p-value for testing zero rank association.
+        - ``n`` : number of paired finite observations used.
 
-    Examples:
-        >>> from minexpy.correlation import spearman_correlation
-        >>> x = [1, 2, 3, 4, 5]
-        >>> y = [1, 4, 9, 16, 25]
-        >>> spearman_correlation(x, y)
-        {'correlation': 1.0, 'p_value': 0.0..., 'n': 5}
+    Raises
+    ------
+    ValueError
+        If inputs are invalid or contain too few valid pairs.
+
+    Examples
+    --------
+    >>> from minexpy.correlation import spearman_correlation
+    >>> x = [1, 2, 3, 4, 5]
+    >>> y = [1, 4, 9, 16, 25]
+    >>> spearman_correlation(x, y)
+    {'correlation': 1.0, 'p_value': 0.0..., 'n': 5}
+
+    Notes
+    -----
+    Spearman is robust to monotonic nonlinear scaling but can still be
+    influenced by large numbers of tied values. In highly tied data,
+    Kendall's tau is often more conservative.
     """
     x_clean, y_clean = _prepare_pair(x, y, min_n=2)
     result = scipy_stats.spearmanr(x_clean, y_clean, alternative=alternative)
@@ -213,35 +290,50 @@ def kendall_correlation(
     method: str = "auto",
     alternative: str = "two-sided",
 ) -> Dict[str, Union[float, int]]:
-    """Compute Kendall's tau correlation.
+    """
+    Compute Kendall's tau rank correlation.
 
-    Kendall's tau is a rank-based coefficient that compares concordant and
-    discordant pairs. It is robust for ordinal data and small samples,
-    and is frequently used in environmental and geoscience trend analysis.
+    Kendall's tau is based on concordant and discordant pair comparisons.
+    It is robust for ordinal structures, less sensitive to outliers than
+    Pearson, and frequently used for geoscience trend analysis.
 
-    Args:
-        x: First numeric variable.
-        y: Second numeric variable.
-        method: Method for p-value computation. Forwarded to
-            ``scipy.stats.kendalltau``.
-        alternative: Alternative hypothesis. Supported values are
-            ``"two-sided"``, ``"greater"``, and ``"less"``.
+    Parameters
+    ----------
+    x : array-like
+        First numeric variable.
+    y : array-like
+        Second numeric variable.
+    method : {'auto', 'asymptotic', 'exact'}, default 'auto'
+        Method forwarded to ``scipy.stats.kendalltau``.
+    alternative : {'two-sided', 'greater', 'less'}, default 'two-sided'
+        Alternative hypothesis used for p-value calculation.
 
-    Returns:
-        A dictionary with:
-        - ``correlation``: Kendall's tau in ``[-1, 1]``.
-        - ``p_value``: p-value for testing zero association.
-        - ``n``: Number of valid paired observations used.
+    Returns
+    -------
+    dict
+        Dictionary with:
 
-    Raises:
-        ValueError: If inputs are invalid or contain too few valid pairs.
+        - ``correlation`` : Kendall's tau in ``[-1, 1]``.
+        - ``p_value`` : p-value for testing zero rank association.
+        - ``n`` : number of paired finite observations used.
 
-    Examples:
-        >>> from minexpy.correlation import kendall_correlation
-        >>> x = [2, 4, 6, 8, 10]
-        >>> y = [5, 7, 8, 11, 13]
-        >>> kendall_correlation(x, y)
-        {'correlation': 0.999..., 'p_value': 0.016..., 'n': 5}
+    Raises
+    ------
+    ValueError
+        If inputs are invalid or contain too few valid pairs.
+
+    Examples
+    --------
+    >>> from minexpy.correlation import kendall_correlation
+    >>> x = [2, 4, 6, 8, 10]
+    >>> y = [5, 7, 8, 11, 13]
+    >>> kendall_correlation(x, y)
+    {'correlation': 0.999..., 'p_value': 0.016..., 'n': 5}
+
+    Notes
+    -----
+    Compared with Spearman's rho, Kendall's tau is typically smaller in
+    magnitude but often easier to interpret probabilistically as concordance.
     """
     x_clean, y_clean = _prepare_pair(x, y, min_n=2)
     result = scipy_stats.kendalltau(
@@ -265,39 +357,55 @@ def partial_correlation(
     controls: Union[np.ndarray, pd.DataFrame, pd.Series, Sequence[float], Sequence[Sequence[float]]],
     alternative: str = "two-sided",
 ) -> Dict[str, Union[float, int]]:
-    """Compute linear partial correlation between ``x`` and ``y``.
+    """
+    Compute linear partial correlation between ``x`` and ``y``.
 
-    Partial correlation quantifies the linear relationship between ``x`` and
-    ``y`` after regressing out one or more control variables. In geoscience,
-    this is useful when assessing element-element relations while controlling
-    for depth, lithology proxy variables, or other covariates.
+    Partial correlation estimates the residual linear relationship between two
+    variables after regressing out one or more control variables. This is
+    useful when evaluating element-element associations while controlling for
+    depth, lithology proxies, or compositional trends.
 
-    Args:
-        x: First numeric variable.
-        y: Second numeric variable.
-        controls: One or multiple control variables. Accepted shapes are
-            ``(n,)`` or ``(n, k)``.
-        alternative: Alternative hypothesis for the test on residual
-            correlation. Supported values are ``"two-sided"``, ``"greater"``,
-            and ``"less"``.
+    Parameters
+    ----------
+    x : array-like
+        First numeric variable.
+    y : array-like
+        Second numeric variable.
+    controls : array-like
+        One or more control variables, with shape ``(n,)`` or ``(n, k)``.
+    alternative : {'two-sided', 'greater', 'less'}, default 'two-sided'
+        Alternative hypothesis for residual-correlation significance test.
 
-    Returns:
-        A dictionary with:
-        - ``correlation``: Partial correlation coefficient.
-        - ``p_value``: p-value under a t-distribution approximation.
-        - ``n``: Number of valid paired observations.
-        - ``df``: Residual degrees of freedom, ``n - k - 2``.
+    Returns
+    -------
+    dict
+        Dictionary with:
 
-    Raises:
-        ValueError: If inputs are invalid or insufficient for estimation.
+        - ``correlation`` : partial correlation coefficient.
+        - ``p_value`` : p-value from t-distribution approximation.
+        - ``n`` : number of paired finite observations used.
+        - ``df`` : residual degrees of freedom, ``n - k - 2``.
 
-    Examples:
-        >>> from minexpy.correlation import partial_correlation
-        >>> x = [10, 12, 13, 16, 20]
-        >>> y = [2, 3, 3.2, 4.1, 5.2]
-        >>> z = [100, 110, 105, 120, 130]
-        >>> partial_correlation(x, y, z)
-        {'correlation': 0.97..., 'p_value': 0.12..., 'n': 5, 'df': 2}
+    Raises
+    ------
+    ValueError
+        If shapes are incompatible, too few observations are available,
+        or degrees of freedom are insufficient.
+
+    Examples
+    --------
+    >>> from minexpy.correlation import partial_correlation
+    >>> x = [10, 12, 13, 16, 20]
+    >>> y = [2, 3, 3.2, 4.1, 5.2]
+    >>> z = [100, 110, 105, 120, 130]
+    >>> partial_correlation(x, y, z)
+    {'correlation': 0.97..., 'p_value': 0.12..., 'n': 5, 'df': 2}
+
+    Notes
+    -----
+    This implementation uses least-squares residualization and then applies
+    Pearson correlation to residual vectors. It assumes a linear adjustment
+    model for control effects.
     """
     x_values = _to_1d_float_array(x, "x")
     y_values = _to_1d_float_array(y, "y")
@@ -369,36 +477,49 @@ def partial_correlation(
 
 
 def distance_correlation(x: ArrayLike1D, y: ArrayLike1D) -> float:
-    """Compute distance correlation for nonlinear dependence detection.
+    """
+    Compute distance correlation for nonlinear dependence detection.
 
-    Distance correlation detects both linear and nonlinear associations.
-    Unlike Pearson correlation, it can be close to zero only when variables
-    are statistically independent (for finite second moments).
+    Distance correlation is zero if and only if variables are independent
+    (under finite second moments). It therefore captures both linear and
+    nonlinear dependence patterns that Pearson may miss.
 
-    Args:
-        x: First numeric variable.
-        y: Second numeric variable.
+    Parameters
+    ----------
+    x : array-like
+        First numeric variable.
+    y : array-like
+        Second numeric variable.
 
-    Returns:
+    Returns
+    -------
+    float
         Distance correlation value in ``[0, 1]``.
 
-    Raises:
-        ValueError: If inputs are invalid or contain too few valid pairs.
+    Raises
+    ------
+    ValueError
+        If inputs are invalid or contain too few valid pairs.
 
-    Examples:
-        >>> from minexpy.correlation import distance_correlation
-        >>> x = np.linspace(-2, 2, 50)
-        >>> y = x ** 2
-        >>> round(distance_correlation(x, y), 3)
-        0.54
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from minexpy.correlation import distance_correlation
+    >>> x = np.linspace(-2, 2, 50)
+    >>> y = x ** 2
+    >>> round(distance_correlation(x, y), 3)
+    0.54
+
+    Notes
+    -----
+    This implementation uses pairwise absolute-distance matrices and classical
+    double-centering. Complexity is ``O(n^2)`` in both time and memory.
     """
     x_clean, y_clean = _prepare_pair(x, y, min_n=2)
 
-    # Pairwise distance matrices (1D absolute distances).
     x_dist = np.abs(x_clean[:, None] - x_clean[None, :])
     y_dist = np.abs(y_clean[:, None] - y_clean[None, :])
 
-    # Double-centering transforms distance matrices to zero-mean space.
     x_centered = (
         x_dist
         - x_dist.mean(axis=0, keepdims=True)
@@ -430,32 +551,49 @@ def biweight_midcorrelation(
     c: float = 9.0,
     epsilon: float = 1e-12,
 ) -> float:
-    """Compute robust biweight midcorrelation.
+    """
+    Compute robust biweight midcorrelation.
 
-    Biweight midcorrelation downweights extreme observations using median
-    and MAD scaling. It is useful for geochemical datasets where outliers
-    can strongly distort classical correlations.
+    Biweight midcorrelation downweights extreme observations using a
+    median/MAD-based weighting scheme. It is particularly useful in assay
+    datasets where a few extreme values can dominate classical coefficients.
 
-    Args:
-        x: First numeric variable.
-        y: Second numeric variable.
-        c: Tuning constant controlling outlier downweighting. Lower values
-            increase robustness and reduce efficiency in near-normal data.
-        epsilon: Small positive stabilizer to avoid division by zero.
+    Parameters
+    ----------
+    x : array-like
+        First numeric variable.
+    y : array-like
+        Second numeric variable.
+    c : float, default 9.0
+        Tuning constant controlling outlier downweighting. Lower values
+        increase robustness but reduce efficiency in near-normal data.
+    epsilon : float, default 1e-12
+        Numerical stabilizer used to avoid division by near-zero quantities.
 
-    Returns:
+    Returns
+    -------
+    float
         Robust correlation in ``[-1, 1]``. Returns ``np.nan`` when robust
         dispersion of either variable is effectively zero.
 
-    Raises:
-        ValueError: If inputs are invalid or contain too few valid pairs.
+    Raises
+    ------
+    ValueError
+        If inputs are invalid or contain too few valid pairs.
 
-    Examples:
-        >>> from minexpy.correlation import biweight_midcorrelation
-        >>> x = np.array([1, 2, 3, 4, 5, 100])
-        >>> y = np.array([1, 2, 3, 4, 5, -100])
-        >>> round(biweight_midcorrelation(x, y), 3)
-        0.996
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from minexpy.correlation import biweight_midcorrelation
+    >>> x = np.array([1, 2, 3, 4, 5, 100])
+    >>> y = np.array([1, 2, 3, 4, 5, -100])
+    >>> round(biweight_midcorrelation(x, y), 3)
+    0.996
+
+    Notes
+    -----
+    This implementation follows a Tukey biweight-style weighting of centered
+    values with cutoff ``|u| < 1`` after MAD scaling.
     """
     x_clean, y_clean = _prepare_pair(x, y, min_n=3)
 
@@ -494,16 +632,23 @@ def biweight_midcorrelation(
 def _to_numeric_dataframe(
     data: Union[pd.DataFrame, np.ndarray, Sequence[Sequence[float]]]
 ) -> pd.DataFrame:
-    """Normalize tabular numeric input into a DataFrame.
+    """
+    Normalize tabular input into a numeric DataFrame.
 
-    Args:
-        data: Tabular input as DataFrame, 2D ndarray, or sequence of rows.
+    Parameters
+    ----------
+    data : DataFrame or array-like
+        Tabular data as DataFrame, 2D ndarray, or sequence of rows.
 
-    Returns:
-        Numeric DataFrame.
+    Returns
+    -------
+    pandas.DataFrame
+        Numeric DataFrame containing only numeric columns.
 
-    Raises:
-        ValueError: If input is not tabular or has no numeric columns.
+    Raises
+    ------
+    ValueError
+        If input is not tabular or contains no numeric columns.
     """
     if isinstance(data, pd.DataFrame):
         df = data.copy()
@@ -528,36 +673,53 @@ def correlation_matrix(
     method: str = "pearson",
     min_periods: int = 2,
 ) -> pd.DataFrame:
-    """Compute a correlation matrix with geoscience-focused methods.
+    """
+    Compute a correlation matrix using geoscience-relevant methods.
 
     Supported methods include:
+
     - ``pearson``
     - ``spearman``
     - ``kendall``
     - ``distance``
     - ``biweight`` or ``biweight_midcorrelation``
 
-    Args:
-        data: Tabular numeric data. If a NumPy array is provided, each
-            column is treated as one variable.
-        method: Correlation method name.
-        min_periods: Minimum number of pairwise valid observations required
-            to compute each matrix entry.
+    Parameters
+    ----------
+    data : DataFrame or array-like
+        Tabular numeric data. If a NumPy array is provided, each column is
+        treated as a separate variable.
+    method : str, default 'pearson'
+        Correlation method name.
+    min_periods : int, default 2
+        Minimum number of pairwise valid observations required for each matrix
+        entry.
 
-    Returns:
-        A symmetric ``pandas.DataFrame`` correlation matrix.
+    Returns
+    -------
+    pandas.DataFrame
+        Symmetric correlation matrix with variable names as row/column labels.
 
-    Raises:
-        ValueError: If method is unsupported or input is invalid.
+    Raises
+    ------
+    ValueError
+        If method is unsupported or input is invalid.
 
-    Examples:
-        >>> import pandas as pd
-        >>> from minexpy.correlation import correlation_matrix
-        >>> df = pd.DataFrame({'Zn': [45, 50, 47], 'Cu': [12, 14, 13]})
-        >>> correlation_matrix(df, method='pearson')
-                   Zn   Cu
-        Zn  1.000000  1.0
-        Cu  1.000000  1.0
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from minexpy.correlation import correlation_matrix
+    >>> df = pd.DataFrame({'Zn': [45, 50, 47], 'Cu': [12, 14, 13]})
+    >>> correlation_matrix(df, method='pearson')
+               Zn   Cu
+    Zn  1.000000  1.0
+    Cu  1.000000  1.0
+
+    Notes
+    -----
+    Built-in pandas methods are used for Pearson/Spearman/Kendall. Distance
+    and biweight matrices are computed pairwise with explicit finite-value
+    filtering.
     """
     numeric_df = _to_numeric_dataframe(data)
     method_lower = method.lower()

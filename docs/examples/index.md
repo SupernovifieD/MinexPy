@@ -266,3 +266,14 @@ plot_scatter(zn, cu, add_trendline=True, xlabel="Zn (ppm)", ylabel="Cu (ppm)")
 
 plt.show()
 ```
+
+Example outputs:
+
+![Histogram Linear](images/histogram_linear.png)
+![Histogram Log](images/histogram_log.png)
+![Box Plot](images/box_plot.png)
+![Violin Plot](images/violin_plot.png)
+![ECDF](images/ecdf.png)
+![Q-Q Plot](images/qq_plot.png)
+![P-P Plot](images/pp_plot.png)
+![Scatter Plot](images/scatter_plot.png)

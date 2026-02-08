@@ -99,4 +99,4 @@ Contributions are welcome—especially examples, notebooks/markdown tutorials, a
 
 - practical workflows
 
-- clear and detailed documentation using Google's docstrings guidelines
+- clear and detailed documentation using NumPy's docstrings guidelines

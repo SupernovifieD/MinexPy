@@ -1,18 +1,35 @@
-"""Statistical visualization utilities for geoscience datasets.
+"""
+Statistical visualization module for geoscience datasets.
 
-This module provides practical plotting helpers for the most common
-statistical diagnostic graphics used in exploration and geochemistry:
+This module provides practical plotting helpers for common statistical
+visual diagnostics used during geochemical and environmental data analysis:
 
-- Histogram (linear and log-x)
-- Box plot
-- Violin plot
-- Empirical CDF (ECDF)
+- Histogram (linear and log-scale)
+- Box plot / violin plot
+- ECDF (empirical cumulative distribution function)
 - Q-Q plot
 - P-P plot
 - Scatter plot with optional trend line
 
-Every plotting function returns ``(figure, axes)`` so the caller can further
-customize layout, styling, annotations, or export behavior.
+All public plotting functions return ``(figure, axis)`` so users can apply
+additional Matplotlib customization (annotations, styling, export settings)
+after MinexPy constructs the base diagnostic plot.
+
+Examples
+--------
+Basic histogram:
+
+    >>> import numpy as np
+    >>> from minexpy.statviz import plot_histogram
+    >>> values = np.random.lognormal(mean=2.2, sigma=0.4, size=200)
+    >>> fig, ax = plot_histogram(values, bins=30, scale='log')
+
+Scatter with trend line:
+
+    >>> from minexpy.statviz import plot_scatter
+    >>> x = np.array([1, 2, 3, 4, 5])
+    >>> y = np.array([2, 4, 6, 8, 10])
+    >>> fig, ax = plot_scatter(x, y, add_trendline=True)
 """
 
 from typing import Mapping, Optional, Sequence, Tuple, Union
@@ -43,17 +60,25 @@ __all__ = [
 
 
 def _to_1d_float_array(data: ArrayLike1D, name: str = "data") -> np.ndarray:
-    """Convert array-like data into a finite 1D float array.
+    """
+    Convert an array-like input into a finite 1D float array.
 
-    Args:
-        data: Input numeric sequence.
-        name: Parameter name for error messages.
+    Parameters
+    ----------
+    data : array-like
+        Input numeric sequence.
+    name : str, default 'data'
+        Parameter name used in validation error messages.
 
-    Returns:
-        Clean one-dimensional ``numpy.ndarray`` of finite values.
+    Returns
+    -------
+    numpy.ndarray
+        Clean one-dimensional float array with finite values only.
 
-    Raises:
-        ValueError: If input is not 1D or contains no finite values.
+    Raises
+    ------
+    ValueError
+        If input is not one-dimensional or contains no finite values.
     """
     if isinstance(data, pd.Series):
         values = data.to_numpy(dtype=float)
@@ -74,14 +99,21 @@ def _resolve_axis(
     ax: Optional[plt.Axes],
     figsize: Tuple[float, float] = (8.0, 5.0),
 ) -> Tuple[plt.Figure, plt.Axes]:
-    """Return a valid Matplotlib figure and axis tuple.
+    """
+    Resolve or create a Matplotlib figure/axis pair.
 
-    Args:
-        ax: Optional pre-existing axis.
-        figsize: Figure size used when creating a new axis.
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes, optional
+        Existing axis to draw on. If ``None``, a new figure and axis are
+        created.
+    figsize : tuple of float, default (8.0, 5.0)
+        Figure size used when creating a new axis.
 
-    Returns:
-        ``(figure, axis)`` tuple.
+    Returns
+    -------
+    tuple
+        ``(figure, axis)``.
     """
     if ax is None:
         fig, axis = plt.subplots(figsize=figsize)
@@ -95,17 +127,26 @@ def _parse_collection(
     data: CollectionLike,
     labels: Optional[Sequence[str]] = None,
 ) -> Tuple[Sequence[str], Sequence[np.ndarray]]:
-    """Normalize single or multiple datasets to a labeled list.
+    """
+    Normalize one or many datasets into labeled arrays.
 
-    Args:
-        data: One dataset or multiple datasets.
-        labels: Optional labels corresponding to datasets.
+    Parameters
+    ----------
+    data : array-like, mapping, sequence of arrays, or DataFrame
+        Input data structure.
+    labels : sequence of str, optional
+        Optional custom labels for resulting datasets.
 
-    Returns:
-        Tuple of ``(names, arrays)`` where each array is finite and 1D.
+    Returns
+    -------
+    tuple
+        Tuple ``(names, arrays)`` where ``names`` is a list of labels and
+        ``arrays`` is a list of finite 1D arrays.
 
-    Raises:
-        ValueError: If input cannot be interpreted as one or more datasets.
+    Raises
+    ------
+    ValueError
+        If input cannot be interpreted as one or more valid datasets.
     """
     names = []
     arrays = []
@@ -157,16 +198,24 @@ def _parse_collection(
 
 
 def _resolve_distribution(distribution: DistributionLike) -> object:
-    """Resolve a SciPy distribution identifier.
+    """
+    Resolve a SciPy distribution specification to an object.
 
-    Args:
-        distribution: Distribution object or a name in ``scipy.stats``.
+    Parameters
+    ----------
+    distribution : str or object
+        Distribution name from ``scipy.stats`` or distribution object exposing
+        ``cdf`` and ``ppf`` methods.
 
-    Returns:
-        A SciPy continuous distribution object.
+    Returns
+    -------
+    object
+        SciPy distribution object.
 
-    Raises:
-        ValueError: If distribution is not found or lacks required methods.
+    Raises
+    ------
+    ValueError
+        If the distribution cannot be resolved or lacks required methods.
     """
     if isinstance(distribution, str):
         if not hasattr(scipy_stats, distribution):
@@ -197,32 +246,60 @@ def plot_histogram(
     ylabel: Optional[str] = None,
     title: str = "Histogram",
 ) -> Tuple[plt.Figure, plt.Axes]:
-    """Plot a histogram with linear or logarithmic x-axis scaling.
+    """
+    Plot a histogram with linear or logarithmic x-axis scaling.
 
-    Args:
-        data: One-dimensional numeric dataset.
-        bins: Number of bins or explicit bin edges.
-        scale: Histogram x-axis scale. Supported values are ``"linear"``
-            and ``"log"``.
-        density: If ``True``, normalize bars to form a density.
-        ax: Optional existing axis for drawing.
-        color: Bar color.
-        alpha: Bar opacity.
-        label: Optional legend label.
-        xlabel: X-axis label.
-        ylabel: Y-axis label. If not provided, ``"Frequency"`` or
-            ``"Density"`` is selected automatically.
-        title: Plot title.
+    Histograms are often the first diagnostic for distribution shape,
+    outlier concentration, and modal behavior. ``scale='log'`` is especially
+    useful for right-skewed concentration data with multiplicative structure.
 
-    Returns:
-        Tuple of ``(figure, axis)``.
+    Parameters
+    ----------
+    data : array-like
+        One-dimensional numeric dataset.
+    bins : int or sequence, default 30
+        Number of bins or explicit bin edges.
+    scale : {'linear', 'log'}, default 'linear'
+        X-axis scale and binning mode.
+    density : bool, default False
+        If ``True``, normalize bar heights to represent density.
+    ax : matplotlib.axes.Axes, optional
+        Existing axis to draw on.
+    color : str, default 'tab:blue'
+        Bar face color.
+    alpha : float, default 0.75
+        Bar opacity.
+    label : str, optional
+        Legend label for plotted dataset.
+    xlabel : str, default 'Value'
+        X-axis label.
+    ylabel : str, optional
+        Y-axis label. If ``None``, set automatically to ``Frequency`` or
+        ``Density`` based on ``density``.
+    title : str, default 'Histogram'
+        Plot title.
 
-    Raises:
-        ValueError: If ``scale='log'`` and data contain non-positive values.
+    Returns
+    -------
+    tuple
+        ``(figure, axis)`` for additional customization.
 
-    Examples:
-        >>> from minexpy.statviz import plot_histogram
-        >>> fig, ax = plot_histogram([1, 2, 2, 3, 5], bins=5)
+    Raises
+    ------
+    ValueError
+        If ``scale`` is invalid or if ``scale='log'`` and data contain
+        non-positive values.
+
+    Examples
+    --------
+    >>> from minexpy.statviz import plot_histogram
+    >>> fig, ax = plot_histogram([1, 2, 2, 3, 5], bins=5)
+    >>> fig, ax = plot_histogram([1, 2, 3, 4], scale='log')
+
+    Notes
+    -----
+    For ``scale='log'`` and integer bins, logarithmically spaced bin edges are
+    constructed from the finite min/max of the data.
     """
     values = _to_1d_float_array(data)
     fig, axis = _resolve_axis(ax)
@@ -276,29 +353,52 @@ def plot_box_violin(
     ylabel: str = "Value",
     title: Optional[str] = None,
 ) -> Tuple[plt.Figure, plt.Axes]:
-    """Plot box plot or violin plot for one or multiple datasets.
+    """
+    Plot box plot or violin plot for one or multiple datasets.
 
-    Args:
-        data: One dataset or a collection of datasets. Supported inputs
-            include 1D arrays, list of arrays, mapping, and DataFrame.
-        kind: Plot type: ``"box"`` or ``"violin"``.
-        labels: Optional labels replacing default dataset names.
-        ax: Optional existing axis for drawing.
-        show_means: If ``True``, mean markers/lines are displayed.
-        color: Primary face color used for glyphs.
-        xlabel: X-axis label.
-        ylabel: Y-axis label.
-        title: Optional title. A default title is used if omitted.
+    Box and violin plots are complementary diagnostics for comparing spread
+    and shape across variables, lithological domains, or spatial groups.
 
-    Returns:
-        Tuple of ``(figure, axis)``.
+    Parameters
+    ----------
+    data : array-like, mapping, sequence of arrays, or DataFrame
+        One dataset or multiple datasets.
+    kind : {'box', 'violin'}, default 'box'
+        Plot type to generate.
+    labels : sequence of str, optional
+        Custom labels replacing detected dataset names.
+    ax : matplotlib.axes.Axes, optional
+        Existing axis to draw on.
+    show_means : bool, default True
+        If ``True``, display mean marker/line.
+    color : str, default 'tab:blue'
+        Primary face color for box/violin glyphs.
+    xlabel : str, default 'Variables'
+        X-axis label.
+    ylabel : str, default 'Value'
+        Y-axis label.
+    title : str, optional
+        Plot title. If omitted, a default title is used.
 
-    Raises:
-        ValueError: If ``kind`` is not supported.
+    Returns
+    -------
+    tuple
+        ``(figure, axis)``.
 
-    Examples:
-        >>> from minexpy.statviz import plot_box_violin
-        >>> fig, ax = plot_box_violin({'Zn': [1, 2, 3], 'Cu': [2, 3, 4]}, kind='violin')
+    Raises
+    ------
+    ValueError
+        If ``kind`` is not ``'box'`` or ``'violin'``.
+
+    Examples
+    --------
+    >>> from minexpy.statviz import plot_box_violin
+    >>> fig, ax = plot_box_violin({'Zn': [1, 2, 3], 'Cu': [2, 3, 4]}, kind='violin')
+
+    Notes
+    -----
+    For DataFrame input, each numeric column is treated as one distribution.
+    Non-finite values are removed independently per dataset.
     """
     names, arrays = _parse_collection(data, labels=labels)
     fig, axis = _resolve_axis(ax)
@@ -337,22 +437,36 @@ def plot_ecdf(
     ylabel: str = "Empirical Cumulative Probability",
     title: str = "ECDF",
 ) -> Tuple[plt.Figure, plt.Axes]:
-    """Plot empirical cumulative distribution function (ECDF).
+    """
+    Plot empirical cumulative distribution function (ECDF).
 
-    Args:
-        data: One dataset or collection of datasets.
-        labels: Optional labels replacing default dataset names.
-        ax: Optional existing axis for drawing.
-        xlabel: X-axis label.
-        ylabel: Y-axis label.
-        title: Plot title.
+    ECDF plots avoid histogram binning artifacts and are useful for direct
+    comparison of distribution shifts and tail behavior across groups.
 
-    Returns:
-        Tuple of ``(figure, axis)``.
+    Parameters
+    ----------
+    data : array-like, mapping, sequence of arrays, or DataFrame
+        One dataset or multiple datasets.
+    labels : sequence of str, optional
+        Custom labels replacing detected dataset names.
+    ax : matplotlib.axes.Axes, optional
+        Existing axis to draw on.
+    xlabel : str, default 'Value'
+        X-axis label.
+    ylabel : str, default 'Empirical Cumulative Probability'
+        Y-axis label.
+    title : str, default 'ECDF'
+        Plot title.
 
-    Examples:
-        >>> from minexpy.statviz import plot_ecdf
-        >>> fig, ax = plot_ecdf([1, 3, 2, 4, 8])
+    Returns
+    -------
+    tuple
+        ``(figure, axis)``.
+
+    Examples
+    --------
+    >>> from minexpy.statviz import plot_ecdf
+    >>> fig, ax = plot_ecdf([1, 3, 2, 4, 8])
     """
     names, arrays = _parse_collection(data, labels=labels)
     fig, axis = _resolve_axis(ax)
@@ -385,30 +499,54 @@ def plot_qq(
     ylabel: str = "Sample Quantiles",
     title: str = "Q-Q Plot",
 ) -> Tuple[plt.Figure, plt.Axes]:
-    """Plot quantile-quantile (Q-Q) diagnostic against a theoretical distribution.
+    """
+    Plot quantile-quantile (Q-Q) diagnostic against a theoretical distribution.
 
-    Args:
-        data: One-dimensional numeric dataset.
-        distribution: SciPy distribution name or object. Default is normal.
-        distribution_parameters: Optional fixed parameters for the chosen
-            distribution. If omitted and ``fit_distribution=True``, parameters
-            are estimated from data using ``distribution.fit`` when available.
-        fit_distribution: If ``True`` and parameters are not provided,
-            estimate distribution parameters from data.
-        show_fit_line: If ``True``, draw least-squares fit line.
-        ax: Optional existing axis for drawing.
-        marker: Marker style used for sample quantiles.
-        color: Marker color.
-        xlabel: X-axis label.
-        ylabel: Y-axis label.
-        title: Plot title.
+    Q-Q plots assess distributional fit by comparing sample quantiles to
+    theoretical quantiles. Tail deviations are especially informative for
+    heavy-tailed geochemical variables.
 
-    Returns:
-        Tuple of ``(figure, axis)``.
+    Parameters
+    ----------
+    data : array-like
+        One-dimensional numeric dataset.
+    distribution : str or scipy.stats distribution, default 'norm'
+        Reference distribution name or object.
+    distribution_parameters : sequence of float, optional
+        Fixed distribution parameters. If omitted and ``fit_distribution=True``,
+        parameters are estimated from the sample via ``distribution.fit`` when
+        available.
+    fit_distribution : bool, default True
+        Fit distribution parameters from data when not provided.
+    show_fit_line : bool, default True
+        If ``True``, overlay least-squares line through plotted points.
+    ax : matplotlib.axes.Axes, optional
+        Existing axis to draw on.
+    marker : str, default 'o'
+        Marker style for sample quantiles.
+    color : str, default 'tab:blue'
+        Marker color.
+    xlabel : str, default 'Theoretical Quantiles'
+        X-axis label.
+    ylabel : str, default 'Sample Quantiles'
+        Y-axis label.
+    title : str, default 'Q-Q Plot'
+        Plot title.
 
-    Examples:
-        >>> from minexpy.statviz import plot_qq
-        >>> fig, ax = plot_qq([1.2, 1.4, 1.8, 2.0, 2.1])
+    Returns
+    -------
+    tuple
+        ``(figure, axis)``.
+
+    Examples
+    --------
+    >>> from minexpy.statviz import plot_qq
+    >>> fig, ax = plot_qq([1.2, 1.4, 1.8, 2.0, 2.1])
+
+    Notes
+    -----
+    The dashed 1:1 line shows ideal agreement. Systematic curvature indicates
+    mismatch between empirical and theoretical distributions.
     """
     values = _to_1d_float_array(data)
     dist_obj = _resolve_distribution(distribution)
@@ -473,28 +611,45 @@ def plot_pp(
     ylabel: str = "Empirical Cumulative Probability",
     title: str = "P-P Plot",
 ) -> Tuple[plt.Figure, plt.Axes]:
-    """Plot probability-probability (P-P) diagnostic against a distribution.
+    """
+    Plot probability-probability (P-P) diagnostic against a distribution.
 
-    Args:
-        data: One-dimensional numeric dataset.
-        distribution: SciPy distribution name or object. Default is normal.
-        distribution_parameters: Optional fixed parameters for the chosen
-            distribution. If omitted and ``fit_distribution=True``, parameters
-            are estimated from data using ``distribution.fit`` when available.
-        fit_distribution: If ``True`` and parameters are not provided,
-            estimate distribution parameters from data.
-        ax: Optional existing axis for drawing.
-        color: Point color.
-        xlabel: X-axis label.
-        ylabel: Y-axis label.
-        title: Plot title.
+    P-P plots compare empirical cumulative probabilities against theoretical
+    CDF values. They are often more sensitive in the central part of the
+    distribution than Q-Q plots.
 
-    Returns:
-        Tuple of ``(figure, axis)``.
+    Parameters
+    ----------
+    data : array-like
+        One-dimensional numeric dataset.
+    distribution : str or scipy.stats distribution, default 'norm'
+        Reference distribution name or object.
+    distribution_parameters : sequence of float, optional
+        Fixed distribution parameters. If omitted and ``fit_distribution=True``,
+        parameters are estimated from the sample via ``distribution.fit`` when
+        available.
+    fit_distribution : bool, default True
+        Fit distribution parameters from data when not provided.
+    ax : matplotlib.axes.Axes, optional
+        Existing axis to draw on.
+    color : str, default 'tab:blue'
+        Marker color.
+    xlabel : str, default 'Theoretical Cumulative Probability'
+        X-axis label.
+    ylabel : str, default 'Empirical Cumulative Probability'
+        Y-axis label.
+    title : str, default 'P-P Plot'
+        Plot title.
 
-    Examples:
-        >>> from minexpy.statviz import plot_pp
-        >>> fig, ax = plot_pp([1.2, 1.4, 1.8, 2.0, 2.1])
+    Returns
+    -------
+    tuple
+        ``(figure, axis)``.
+
+    Examples
+    --------
+    >>> from minexpy.statviz import plot_pp
+    >>> fig, ax = plot_pp([1.2, 1.4, 1.8, 2.0, 2.1])
     """
     values = np.sort(_to_1d_float_array(data))
     dist_obj = _resolve_distribution(distribution)
@@ -538,32 +693,55 @@ def plot_scatter(
     ylabel: str = "Y",
     title: str = "Scatter Plot",
 ) -> Tuple[plt.Figure, plt.Axes]:
-    """Plot scatter data with optional linear trend line.
+    """
+    Plot scatter data with optional least-squares trend line.
 
-    Args:
-        x: X-axis values.
-        y: Y-axis values.
-        ax: Optional existing axis for drawing.
-        color: Marker color.
-        alpha: Marker opacity.
-        marker: Marker style.
-        label: Optional label for data points.
-        add_trendline: If ``True``, add least-squares regression line and
-            annotate Pearson ``r`` in the legend.
-        trendline_color: Trend line color.
-        xlabel: X-axis label.
-        ylabel: Y-axis label.
-        title: Plot title.
+    Scatter plots are central to geoscience exploratory analysis because they
+    reveal linear/nonlinear patterns, heteroscedasticity, clustering, and
+    potential outliers before formal modeling.
 
-    Returns:
-        Tuple of ``(figure, axis)``.
+    Parameters
+    ----------
+    x : array-like
+        X-variable values.
+    y : array-like
+        Y-variable values.
+    ax : matplotlib.axes.Axes, optional
+        Existing axis to draw on.
+    color : str, default 'tab:blue'
+        Marker color.
+    alpha : float, default 0.8
+        Marker opacity.
+    marker : str, default 'o'
+        Marker style.
+    label : str, optional
+        Legend label for plotted points.
+    add_trendline : bool, default False
+        If ``True``, overlay least-squares regression line and annotate
+        Pearson ``r`` in legend.
+    trendline_color : str, default 'tab:red'
+        Trend line color.
+    xlabel : str, default 'X'
+        X-axis label.
+    ylabel : str, default 'Y'
+        Y-axis label.
+    title : str, default 'Scatter Plot'
+        Plot title.
 
-    Raises:
-        ValueError: If paired valid observations are fewer than two.
+    Returns
+    -------
+    tuple
+        ``(figure, axis)``.
 
-    Examples:
-        >>> from minexpy.statviz import plot_scatter
-        >>> fig, ax = plot_scatter([1, 2, 3], [2, 4, 6], add_trendline=True)
+    Raises
+    ------
+    ValueError
+        If vector lengths differ or fewer than two valid paired values exist.
+
+    Examples
+    --------
+    >>> from minexpy.statviz import plot_scatter
+    >>> fig, ax = plot_scatter([1, 2, 3], [2, 4, 6], add_trendline=True)
     """
     x_values = _to_1d_float_array(x, name="x")
     y_values = _to_1d_float_array(y, name="y")

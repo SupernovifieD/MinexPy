@@ -173,16 +173,101 @@ MinexPy's `minexpy.correlation` module provides several complementary dependence
 
 ## Visualization diagnostics
 
-The `minexpy.statviz` module supports the core graphics used to validate distribution and dependence assumptions:
+The `minexpy.statviz` module supports the core graphics used to validate distributional assumptions, detect outliers, and inspect pairwise dependence in geoscience datasets.
 
-- `plot_histogram`: frequency/density inspection in linear or log-x scale.
-- `plot_box_violin`: robust spread and shape comparison across variables.
-- `plot_ecdf`: nonparametric cumulative-distribution comparison.
-- `plot_qq`: sample quantiles against theoretical quantiles.
-- `plot_pp`: empirical probabilities against theoretical probabilities.
-- `plot_scatter`: bivariate pattern checks with optional trend line.
+### 1. Histogram (Linear and Log)
 
-These figures should be interpreted together with summary statistics and domain context (sampling support, assay precision, compositional closure, and spatial dependence).
+`plot_histogram` visualizes the empirical distribution through bin counts (or densities). For a bin \(B_j\), the count is:
+$$
+N_j = \sum_{i=1}^{n}\mathbf{1}(x_i \in B_j)
+$$
+where \(\mathbf{1}(\cdot)\) is the indicator function.
+
+If `density=True`, histogram bar heights approximate a probability density so that total bar area is near 1.
+
+- **Linear scale** is appropriate when data are roughly symmetric or span a narrow range.
+- **Log scale** is useful for right-skewed element concentrations (common in trace geochemistry), where multiplicative structure is better revealed on \(\log x\).
+
+![Histogram Linear](examples/histogram_linear.png)
+![Histogram Log](examples/histogram_log.png)
+
+### 2. Box Plot and Violin Plot
+
+`plot_box_violin` summarizes central tendency, spread, and distribution shape:
+
+- **Box plot** uses quartiles \(Q_1, Q_2, Q_3\), with interquartile range
+  $$
+  \operatorname{IQR} = Q_3 - Q_1
+  $$
+  and common whisker limits at:
+  $$
+  Q_1 - 1.5\operatorname{IQR}, \quad Q_3 + 1.5\operatorname{IQR}.
+  $$
+- **Violin plot** shows a smoothed density estimate, usually via kernel density estimation (KDE):
+  $$
+  \hat{f}(x) = \frac{1}{nh}\sum_{i=1}^{n} K\!\left(\frac{x-x_i}{h}\right),
+  $$
+  where \(K\) is the kernel and \(h\) is bandwidth.
+
+Box plots are robust for comparing medians and outlier structure; violins provide richer shape information (multimodality, heavy tails).
+
+![Box Plot](examples/box_plot.png)
+![Violin Plot](examples/violin_plot.png)
+
+### 3. ECDF (Empirical Cumulative Distribution Function)
+
+`plot_ecdf` provides a nonparametric cumulative view:
+$$
+\hat{F}_n(x) = \frac{1}{n}\sum_{i=1}^{n}\mathbf{1}(x_i \le x).
+$$
+
+ECDFs are valuable for comparing variables or domains without binning choices. Differences in tail behavior are often more visible in ECDF than in histograms.
+
+![ECDF](examples/ecdf.png)
+
+### 4. Q-Q Plot (Quantile-Quantile)
+
+`plot_qq` compares sample quantiles to theoretical quantiles from a reference distribution:
+$$
+\left(q^{(\text{theory})}_p,\; q^{(\text{sample})}_p\right), \quad p \in (0,1).
+$$
+
+When points follow the 1:1 line, the chosen distribution is a reasonable model. Curvature indicates systematic mismatch:
+
+- convex/concave patterns suggest skew or tail mismatch,
+- tail departures suggest heavy/light tails relative to the reference model.
+
+![Q-Q Plot](examples/qq_plot.png)
+
+### 5. P-P Plot (Probability-Probability)
+
+`plot_pp` compares cumulative probabilities:
+$$
+\left(F_\theta(x_{(i)}),\; \frac{i-0.5}{n}\right), \quad i=1,\ldots,n
+$$
+where \(F_\theta\) is the fitted/theoretical CDF and \(x_{(i)}\) are ordered observations.
+
+P-P plots emphasize fit in the central distribution region, while Q-Q plots are usually more sensitive in the tails. Using both provides a more complete diagnostic.
+
+![P-P Plot](examples/pp_plot.png)
+
+### 6. Scatter Plot with Trend Line
+
+`plot_scatter` is used for pairwise relationship inspection:
+$$
+(x_i, y_i), \quad i=1,\ldots,n.
+$$
+With `add_trendline=True`, MinexPy overlays the least-squares line:
+$$
+\hat{y} = \hat{\beta}_0 + \hat{\beta}_1 x
+$$
+where \((\hat{\beta}_0,\hat{\beta}_1)\) minimize \(\sum_{i=1}^n (y_i-\hat{y}_i)^2\).
+
+This plot is central for identifying linear trends, heteroscedasticity, clusters/sub-populations, and anomalous points before formal modeling.
+
+![Scatter Plot](examples/scatter_plot.png)
+
+All diagnostic plots should be interpreted jointly with summary statistics and geological context (sampling support, assay precision, compositional effects, and spatial dependence).
 
 ## Implementation notes in MinexPy
 
