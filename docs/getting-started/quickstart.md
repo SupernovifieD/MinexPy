@@ -124,6 +124,62 @@ z_specific = z_score(data, value=30.0)
 print(f"Z-score for 30.0: {z_specific:.3f}")
 ```
 
+### Correlation Analysis
+
+Use the correlation module to quantify relationships between elements:
+
+```python
+import numpy as np
+from minexpy.correlation import (
+    pearson_correlation,
+    spearman_correlation,
+    kendall_correlation,
+    correlation_matrix,
+)
+
+zn = np.array([45.2, 52.3, 38.7, 61.2, 49.8, 55.1, 42.3, 58.9])
+cu = np.array([12.5, 15.3, 11.2, 18.4, 14.1, 16.0, 12.8, 17.2])
+
+print("Pearson:", pearson_correlation(zn, cu))
+print("Spearman:", spearman_correlation(zn, cu))
+print("Kendall:", kendall_correlation(zn, cu))
+
+# Matrix form for multiple elements
+import pandas as pd
+df = pd.DataFrame({"Zn": zn, "Cu": cu})
+print(correlation_matrix(df, method="pearson"))
+```
+
+### Statistical Visualization
+
+Create diagnostic plots for distribution checks and bivariate trends:
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+from minexpy.statviz import (
+    plot_histogram,
+    plot_box_violin,
+    plot_ecdf,
+    plot_qq,
+    plot_pp,
+    plot_scatter,
+)
+
+rng = np.random.default_rng(42)
+zn = rng.lognormal(mean=2.2, sigma=0.35, size=250)
+cu = 0.3 * zn + rng.normal(0, 1.5, size=250)
+
+plot_histogram(zn, bins=30, scale="log", xlabel="Zn (ppm)")
+plot_box_violin({"Zn": zn, "Cu": cu}, kind="box", ylabel="Concentration (ppm)")
+plot_ecdf({"Zn": zn, "Cu": cu}, xlabel="Concentration (ppm)")
+plot_qq(zn, distribution="norm")
+plot_pp(zn, distribution="norm")
+plot_scatter(zn, cu, add_trendline=True, xlabel="Zn (ppm)", ylabel="Cu (ppm)")
+
+plt.show()
+```
+
 ## Next Steps
 
 - Read the [User Guide](../user-guide/overview.md) for detailed explanations

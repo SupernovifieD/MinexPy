@@ -24,7 +24,58 @@ pip install minexpy
 
 ## How to use
 
-Like most Python packages, you install it and import what you need Documentation and examples will expand over time as modules are added.
+MinexPy provides both a Python API and a command-line interface.
+
+### Python API
+
+Like most Python packages, you install it and import what you need:
+
+```python
+import minexpy.stats as mstats
+from minexpy import (
+    StatisticalAnalyzer,
+    describe,
+    pearson_correlation,
+    spearman_correlation,
+    plot_histogram,
+)
+```
+
+### Example: Correlation + Visualization
+
+```python
+import numpy as np
+from minexpy.correlation import pearson_correlation, spearman_correlation
+from minexpy.statviz import plot_histogram
+
+zn = np.array([45.2, 52.3, 38.7, 61.2, 49.8, 55.1])
+cu = np.array([12.5, 15.3, 11.2, 18.4, 14.1, 16.0])
+
+print(pearson_correlation(zn, cu))
+print(spearman_correlation(zn, cu))
+
+fig, ax = plot_histogram(zn, bins=10, scale="linear", xlabel="Zn (ppm)")
+```
+
+### Command-Line Interface
+
+After installation, use the `minexpy` command for quick access to documentation and examples:
+
+```bash
+# Show help and available functions
+minexpy
+
+# Show practical code examples you can copy
+minexpy demo
+
+# Open documentation in browser
+minexpy docs
+
+# Show package information
+minexpy info
+```
+
+Documentation and examples will expand over time as modules are added.
 
 ---
 
@@ -48,4 +99,4 @@ Contributions are welcome—especially examples, notebooks/markdown tutorials, a
 
 - practical workflows
 
-- clear and detailed documentation using Google's docstrings guidelines
+- clear and detailed documentation using NumPy's docstrings guidelines

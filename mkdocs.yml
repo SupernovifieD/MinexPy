@@ -40,7 +40,7 @@ plugins:
         python:
           paths: [.]
           options:
-            docstring_style: google
+            docstring_style: numpy
             show_source: true
             show_root_heading: true
             show_root_toc_entry: true
@@ -67,10 +67,12 @@ nav:
     - Quick Start: getting-started/quickstart.md
   - Research Notes:
     - Overview: research-notes/index.md
+    - Statistical Foundations: research-notes/statistical-foundations.md
   - User Guide:
     - Overview: user-guide/overview.md
+    - Correlation Analysis: user-guide/correlation-analysis.md
+    - Statistical Visualization: user-guide/statistical-visualization.md
   - API Reference:
     - API: api/index.md
   - Examples:
     - Examples: examples/index.md
-
