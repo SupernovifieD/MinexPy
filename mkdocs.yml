@@ -70,6 +70,8 @@ nav:
     - Statistical Foundations: research-notes/statistical-foundations.md
   - User Guide:
     - Overview: user-guide/overview.md
+    - Correlation Analysis: user-guide/correlation-analysis.md
+    - Statistical Visualization: user-guide/statistical-visualization.md
   - API Reference:
     - API: api/index.md
   - Examples:

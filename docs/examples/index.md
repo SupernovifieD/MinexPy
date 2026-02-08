@@ -2,6 +2,12 @@
 
 This section contains practical examples demonstrating how to use MinexPy for geochemical data analysis.
 
+For a complete runnable demo that computes correlations and generates all statistical plots to files, run:
+
+```bash
+bash run_stat_examples.sh
+```
+
 ## Example 1: Basic Statistical Analysis
 
 Analyze a single geochemical element:
@@ -185,4 +191,78 @@ for element in elements:
 # Find most variable element
 most_variable = summary['coefficient_of_variation'].idxmax()
 print(f"\nMost variable element: {most_variable}")
+```
+
+## Example 8: Correlation Methods for Geoscience Variables
+
+Compare linear, rank-based, robust, and nonlinear correlations:
+
+```python
+import numpy as np
+import pandas as pd
+from minexpy.correlation import (
+    pearson_correlation,
+    spearman_correlation,
+    kendall_correlation,
+    distance_correlation,
+    biweight_midcorrelation,
+    partial_correlation,
+    correlation_matrix,
+)
+
+rng = np.random.default_rng(10)
+depth = np.linspace(20, 300, 80)
+zn = 0.15 * depth + rng.normal(0, 4, size=80)
+cu = 0.10 * depth + 0.45 * zn + rng.normal(0, 3, size=80)
+pb = 0.05 * depth + rng.normal(0, 2, size=80)
+
+print("Pearson:", pearson_correlation(zn, cu))
+print("Spearman:", spearman_correlation(zn, cu))
+print("Kendall:", kendall_correlation(zn, cu))
+print("Distance:", distance_correlation(zn, cu))
+print("Biweight:", biweight_midcorrelation(zn, cu))
+print("Partial (control depth):", partial_correlation(zn, cu, controls=depth))
+
+df = pd.DataFrame({"Zn": zn, "Cu": cu, "Pb": pb})
+print("\nPearson matrix:")
+print(correlation_matrix(df, method="pearson"))
+print("\nDistance-correlation matrix:")
+print(correlation_matrix(df, method="distance"))
+```
+
+## Example 9: Statistical Visualization Diagnostics
+
+Generate the standard set of statistical diagnostic plots:
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+from minexpy.statviz import (
+    plot_histogram,
+    plot_box_violin,
+    plot_ecdf,
+    plot_qq,
+    plot_pp,
+    plot_scatter,
+)
+
+rng = np.random.default_rng(42)
+zn = rng.lognormal(mean=2.2, sigma=0.35, size=250)
+cu = 0.35 * zn + rng.normal(0, 1.5, size=250)
+
+# Histogram (linear/log)
+plot_histogram(zn, bins=30, scale="linear", xlabel="Zn (ppm)")
+plot_histogram(zn, bins=30, scale="log", xlabel="Zn (ppm, log scale)")
+
+# Box and violin
+plot_box_violin({"Zn": zn, "Cu": cu}, kind="box", ylabel="Concentration (ppm)")
+plot_box_violin({"Zn": zn, "Cu": cu}, kind="violin", ylabel="Concentration (ppm)")
+
+# ECDF, Q-Q, P-P, scatter
+plot_ecdf({"Zn": zn, "Cu": cu}, xlabel="Concentration (ppm)")
+plot_qq(zn, distribution="norm", ylabel="Zn Sample Quantiles")
+plot_pp(zn, distribution="norm")
+plot_scatter(zn, cu, add_trendline=True, xlabel="Zn (ppm)", ylabel="Cu (ppm)")
+
+plt.show()
 ```

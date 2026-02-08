@@ -5,16 +5,24 @@ A comprehensive toolkit for geoscience researchers providing tools for geochemic
 ## Features
 
 - **Statistical Analysis**: Comprehensive statistical tools for geochemical data
-- **Visualization**: Advanced plotting and mapping capabilities
+- **Correlation Analysis**: Pearson, Spearman, Kendall, robust, nonlinear, and partial correlation tools
+- **Statistical Visualization**: Histogram, box/violin, ECDF, Q-Q, P-P, and scatter diagnostics
 - **Data Processing**: Efficient data preprocessing and cleaning utilities
-- **Geospatial Analysis**: Tools for spatial interpolation and mapping
 
 ## Quick Start
 
 ```python
 import minexpy
 
-# Your code here
+from minexpy import describe, pearson_correlation
+
+# Descriptive statistics
+summary = describe([12.5, 15.3, 18.7, 22.1, 19.4, 16.8])
+print(summary["mean"])
+
+# Correlation
+result = pearson_correlation([10, 20, 30], [2, 4, 6])
+print(result["correlation"])
 ```
 
 ## Installation
@@ -28,4 +36,3 @@ For detailed installation instructions, see the [Installation Guide](getting-sta
 ## Documentation
 
 Browse the full documentation to learn more about using MinexPy for your geoscience research.
-

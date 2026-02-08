@@ -52,6 +52,8 @@ OPTIONS
 AVAILABLE MODULES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   minexpy.stats       Statistical analysis module for geoscience data
+  minexpy.correlation Correlation analysis utilities
+  minexpy.statviz     Statistical visualization utilities
 
 MAIN CLASSES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -80,11 +82,30 @@ STATISTICAL FUNCTIONS
   Summary:
     describe             Comprehensive statistical summary
 
+CORRELATION FUNCTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  pearson_correlation     Linear correlation with p-value
+  spearman_correlation    Rank-based monotonic correlation
+  kendall_correlation     Robust rank concordance correlation
+  distance_correlation    Nonlinear dependence correlation
+  biweight_midcorrelation Robust outlier-resistant correlation
+  partial_correlation     Correlation with control variables
+  correlation_matrix      Pairwise correlation matrix utility
+
+VISUALIZATION FUNCTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  plot_histogram          Histogram (linear/log)
+  plot_box_violin         Box or violin plot
+  plot_ecdf               Empirical CDF
+  plot_qq                 Q-Q diagnostic plot
+  plot_pp                 P-P diagnostic plot
+  plot_scatter            Scatter plot (+ optional trend line)
+
 QUICK START
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   import numpy as np
   import minexpy.stats as mstats
-  from minexpy import StatisticalAnalyzer, describe
+  from minexpy import StatisticalAnalyzer, describe, pearson_correlation
   
   # Analyze your data
   data = np.array([12.5, 15.3, 18.7, 22.1, 19.4, 16.8])
@@ -146,6 +167,7 @@ DEPENDENCIES
   • numpy        (>=1.24.0)  - Numerical computing
   • pandas       (>=2.0.0)   - Data manipulation
   • scipy        (>=1.10.0)  - Scientific computing
+  • matplotlib   (>=3.7.0)   - Statistical visualization
 
 LINKS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -116,9 +116,73 @@ This note explains the mathematical foundations behind the statistical functions
   $$
 - Z-scores allow you to compare how unusual a value is relative to the sample. Large absolute z-scores flag potential anomalies for further QA/QC or domain review.
 
+## Correlation metrics
+
+MinexPy's `minexpy.correlation` module provides several complementary dependence metrics because geoscience variables are often skewed, noisy, and not strictly linear.
+
+- **Pearson correlation** (`pearson_correlation`): linear association
+  $$
+  r_{xy} =
+  \frac{\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})}
+       {\sqrt{\sum_{i=1}^{n}(x_i-\bar{x})^2}\sqrt{\sum_{i=1}^{n}(y_i-\bar{y})^2}}
+  $$
+- Pearson is efficient for approximately normal, homoscedastic relationships but sensitive to outliers.
+
+- **Spearman correlation** (`spearman_correlation`): Pearson correlation on ranks.
+- When there are no ties, an equivalent form is:
+  $$
+  \rho_s = 1 - \frac{6\sum_{i=1}^{n} d_i^2}{n(n^2-1)},
+  $$
+  where $d_i$ is the rank difference for pair $i$.
+- Spearman is preferred for monotonic but nonlinear trends.
+
+- **Kendall correlation** (`kendall_correlation`): concordance-based rank metric
+  $$
+  \tau = \frac{N_c - N_d}{\binom{n}{2}}
+  $$
+  where $N_c$ and $N_d$ are numbers of concordant and discordant pairs.
+- Kendall is robust for ordinal structure and often stable in small samples.
+
+- **Distance correlation** (`distance_correlation`): nonlinear dependence via centered pairwise distances.
+- Let $A$ and $B$ be double-centered distance matrices for $x$ and $y$:
+  $$
+  \mathcal{V}^2(x,y)=\frac{1}{n^2}\sum_{i,j}A_{ij}B_{ij}, \quad
+  \mathcal{R}(x,y)=\frac{\mathcal{V}(x,y)}{\sqrt{\mathcal{V}(x,x)\mathcal{V}(y,y)}}
+  $$
+- Distance correlation can detect nonlinear relationships that Pearson can miss.
+
+- **Biweight midcorrelation** (`biweight_midcorrelation`): robust correlation with outlier downweighting.
+- Using median $M_x$ and MAD scale, define
+  $$
+  u_i=\frac{x_i-M_x}{c\cdot MAD_x}, \qquad
+  w_i=(1-u_i^2)^2 \text{ for } |u_i|<1, \text{ else } 0.
+  $$
+- The same is computed for $y$, then weighted centered values are correlated.
+- This is useful for assay datasets with occasional extreme values.
+
+- **Partial correlation** (`partial_correlation`): correlation after removing control-variable effects.
+- If $r_x$ and $r_y$ are residuals from regressing $x$ and $y$ on controls $Z$, then:
+  $$
+  r_{xy\cdot Z} = \operatorname{corr}(r_x, r_y)
+  $$
+- Useful for asking whether two elements remain associated after removing depth/lithology trends.
+
 ## Comprehensive summaries
 
 `describe` aggregates the above into a single dictionary containing: count, mean, median, standard deviation, variance, min, max, range, skewness, kurtosis, coefficient of variation, Q1, Q3, IQR, and any user-specified percentiles. `StatisticalAnalyzer.summary` applies `describe` column-wise for DataFrames and returns a tidy DataFrame.
+
+## Visualization diagnostics
+
+The `minexpy.statviz` module supports the core graphics used to validate distribution and dependence assumptions:
+
+- `plot_histogram`: frequency/density inspection in linear or log-x scale.
+- `plot_box_violin`: robust spread and shape comparison across variables.
+- `plot_ecdf`: nonparametric cumulative-distribution comparison.
+- `plot_qq`: sample quantiles against theoretical quantiles.
+- `plot_pp`: empirical probabilities against theoretical probabilities.
+- `plot_scatter`: bivariate pattern checks with optional trend line.
+
+These figures should be interpreted together with summary statistics and domain context (sampling support, assay precision, compositional closure, and spatial dependence).
 
 ## Implementation notes in MinexPy
 

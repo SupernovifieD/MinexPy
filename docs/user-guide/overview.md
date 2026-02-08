@@ -1,13 +1,20 @@
 # User Guide Overview
 
-Welcome to the MinexPy user guide. This section provides comprehensive documentation on using MinexPy for geoscience research.
+This section explains how to apply MinexPy's core analysis modules in practical geoscience workflows.
 
-## Topics
+## Core Modules
 
-- Data preprocessing
-- Statistical analysis
-- Visualization
-- Geospatial analysis
+- `minexpy.stats`: Descriptive statistics, spread metrics, and distribution diagnostics.
+- `minexpy.correlation`: Pairwise and matrix-based correlation analysis (linear, rank-based, robust, and nonlinear).
+- `minexpy.statviz`: Statistical visualization tools for distribution checks and bivariate analysis.
 
-More detailed guides will be added as the package develops.
+## Recommended Workflow
 
+1. Start with `describe` or `StatisticalAnalyzer.summary` to inspect scale, spread, and distribution shape.
+2. Use `correlation_matrix` and pairwise correlation functions to test relationships between variables.
+3. Confirm assumptions with visual diagnostics such as histogram, ECDF, Q-Q, and scatter plots.
+
+## Guides in This Section
+
+- [Correlation Analysis](correlation-analysis.md)
+- [Statistical Visualization](statistical-visualization.md)

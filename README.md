@@ -32,7 +32,29 @@ Like most Python packages, you install it and import what you need:
 
 ```python
 import minexpy.stats as mstats
-from minexpy import StatisticalAnalyzer, describe
+from minexpy import (
+    StatisticalAnalyzer,
+    describe,
+    pearson_correlation,
+    spearman_correlation,
+    plot_histogram,
+)
+```
+
+### Example: Correlation + Visualization
+
+```python
+import numpy as np
+from minexpy.correlation import pearson_correlation, spearman_correlation
+from minexpy.statviz import plot_histogram
+
+zn = np.array([45.2, 52.3, 38.7, 61.2, 49.8, 55.1])
+cu = np.array([12.5, 15.3, 11.2, 18.4, 14.1, 16.0])
+
+print(pearson_correlation(zn, cu))
+print(spearman_correlation(zn, cu))
+
+fig, ax = plot_histogram(zn, bins=10, scale="linear", xlabel="Zn (ppm)")
 ```
 
 ### Command-Line Interface
