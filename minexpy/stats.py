@@ -1,7 +1,7 @@
 """
 Statistical analysis module for geoscience data.
 
-This module provides comprehensive statistical metrics for analyzing
+This module provides comprehensive descriptive statistical metrics for analyzing
 geochemical and geological sample data. It includes both functional
 and class-based APIs for maximum flexibility.
 
