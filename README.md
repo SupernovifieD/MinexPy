@@ -24,7 +24,36 @@ pip install minexpy
 
 ## How to use
 
-Like most Python packages, you install it and import what you need Documentation and examples will expand over time as modules are added.
+MinexPy provides both a Python API and a command-line interface.
+
+### Python API
+
+Like most Python packages, you install it and import what you need:
+
+```python
+import minexpy.stats as mstats
+from minexpy import StatisticalAnalyzer, describe
+```
+
+### Command-Line Interface
+
+After installation, use the `minexpy` command for quick access to documentation and examples:
+
+```bash
+# Show help and available functions
+minexpy
+
+# Show practical code examples you can copy
+minexpy demo
+
+# Open documentation in browser
+minexpy docs
+
+# Show package information
+minexpy info
+```
+
+Documentation and examples will expand over time as modules are added.
 
 ---
 
