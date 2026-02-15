@@ -76,3 +76,40 @@ print(correlation_matrix(df, method="pearson"))
 print(correlation_matrix(df, method="spearman"))
 print(correlation_matrix(df, method="distance"))
 ```
+
+## Complete Geoscience Correlation Workflow
+
+Compare linear, rank-based, robust, and nonlinear correlations in one pass:
+
+```python
+import numpy as np
+import pandas as pd
+from minexpy.correlation import (
+    pearson_correlation,
+    spearman_correlation,
+    kendall_correlation,
+    distance_correlation,
+    biweight_midcorrelation,
+    partial_correlation,
+    correlation_matrix,
+)
+
+rng = np.random.default_rng(10)
+depth = np.linspace(20, 300, 80)
+zn = 0.15 * depth + rng.normal(0, 4, size=80)
+cu = 0.10 * depth + 0.45 * zn + rng.normal(0, 3, size=80)
+pb = 0.05 * depth + rng.normal(0, 2, size=80)
+
+print("Pearson:", pearson_correlation(zn, cu))
+print("Spearman:", spearman_correlation(zn, cu))
+print("Kendall:", kendall_correlation(zn, cu))
+print("Distance:", distance_correlation(zn, cu))
+print("Biweight:", biweight_midcorrelation(zn, cu))
+print("Partial (control depth):", partial_correlation(zn, cu, controls=depth))
+
+df = pd.DataFrame({"Zn": zn, "Cu": cu, "Pb": pb})
+print("\nPearson matrix:")
+print(correlation_matrix(df, method="pearson"))
+print("\nDistance-correlation matrix:")
+print(correlation_matrix(df, method="distance"))
+```

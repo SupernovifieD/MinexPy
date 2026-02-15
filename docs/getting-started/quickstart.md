@@ -10,14 +10,6 @@ First, install MinexPy:
 pip install minexpy
 ```
 
-Or install from source:
-
-```bash
-git clone https://github.com/yourusername/MinexPy.git
-cd MinexPy
-pip install -e .
-```
-
 ## Basic Usage
 
 ### Using Functions
@@ -184,4 +176,3 @@ plt.show()
 
 - Read the [User Guide](../user-guide/overview.md) for detailed explanations
 - Explore the [API Reference](../api/index.md) for all available functions
-- Check out [Examples](../examples/index.md) for more complex use cases

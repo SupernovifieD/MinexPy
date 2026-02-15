@@ -16,5 +16,6 @@ This section explains how to apply MinexPy's core analysis modules in practical 
 
 ## Guides in This Section
 
+- [Statistical Analysis](statistical-analysis.md)
 - [Correlation Analysis](correlation-analysis.md)
 - [Statistical Visualization](statistical-visualization.md)
