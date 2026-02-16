@@ -1,4 +1,4 @@
-# Statistical Foundations for MinexPy
+# Statistical Foundations
 
 <!-- Enable MathJax on this page so LaTeX renders when browsing the local MkDocs site -->
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>

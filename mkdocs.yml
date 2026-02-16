@@ -68,6 +68,7 @@ nav:
   - Research Notes:
     - Overview: research-notes/index.md
     - Statistical Foundations: research-notes/statistical-foundations.md
+    - Geochemical Mapping Foundations: research-notes/mapping-foundations.md
   - User Guide:
     - Overview: user-guide/overview.md
     - Statistical Analysis: user-guide/statistical-analysis.md
