@@ -5,7 +5,7 @@ This package provides tools for geochemical analysis, statistical processing,
 and visualization for geological sample data.
 """
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 # Import main modules for easy access
 from . import stats
