@@ -31,6 +31,7 @@ dependencies = [
     "scipy>=1.10.0",
     "matplotlib>=3.7.0",
     "click>=8.0.0",
+    "openpyxl>=3.1.0",
 ]
 
 [project.urls]
@@ -54,7 +55,7 @@ docs = [
 ]
 
 [tool.setuptools]
-packages = ["minexpy"]
+packages = ["minexpy", "minexpy.mapping"]
 
 [tool.setuptools.package-data]
 minexpy = ["py.typed"]

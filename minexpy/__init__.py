@@ -11,6 +11,7 @@ __version__ = "0.1.1"
 from . import stats
 from . import correlation
 from . import statviz
+from . import mapping
 
 # Export commonly used classes and functions
 from .stats import (
@@ -44,11 +45,18 @@ from .statviz import (
     plot_pp,
     plot_scatter,
 )
+from .mapping import (
+    GeochemDataWarning,
+    GeochemPrepareMetadata,
+    prepare,
+    invert_values_for_display,
+)
 
 __all__ = [
     'stats',
     'correlation',
     'statviz',
+    'mapping',
     'StatisticalAnalyzer',
     'describe',
     'skewness',
@@ -74,4 +82,8 @@ __all__ = [
     'plot_qq',
     'plot_pp',
     'plot_scatter',
+    'GeochemDataWarning',
+    'GeochemPrepareMetadata',
+    'prepare',
+    'invert_values_for_display',
 ]

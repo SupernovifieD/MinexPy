@@ -54,6 +54,7 @@ AVAILABLE MODULES
   minexpy.stats       Statistical analysis module for geoscience data
   minexpy.correlation Correlation analysis utilities
   minexpy.statviz     Statistical visualization utilities
+  minexpy.mapping     Mapping data
 
 MAIN CLASSES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -168,6 +169,7 @@ DEPENDENCIES
   • pandas       (>=2.0.0)   - Data manipulation
   • scipy        (>=1.10.0)  - Scientific computing
   • matplotlib   (>=3.7.0)   - Statistical visualization
+  • openpyxl     (>=3.1.0)   - Excel file support
 
 LINKS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
