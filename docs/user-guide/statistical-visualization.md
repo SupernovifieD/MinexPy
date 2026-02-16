@@ -13,65 +13,118 @@ MinexPy includes a `minexpy.statviz` module for common statistical plots used in
 
 All plot functions set axis labels and return `(figure, axis)` for further customization.
 
-## Histogram (Linear / Log)
+## `plot_histogram`
+
+Create histograms in linear and log scale using the same Zn dataset:
 
 ```python
 import matplotlib.pyplot as plt
 import numpy as np
 from minexpy.statviz import plot_histogram
 
-values = np.random.lognormal(mean=2.2, sigma=0.5, size=300)
+rng = np.random.default_rng(42)
+zn = rng.lognormal(mean=2.2, sigma=0.35, size=250)
 
-fig, ax = plot_histogram(values, bins=30, scale="linear", xlabel="Zn (ppm)")
-fig.savefig("hist_linear.png", dpi=150, bbox_inches="tight")
+fig, ax = plot_histogram(zn, bins=30, scale="linear", xlabel="Zn (ppm)")
+plt.show()
 
-fig, ax = plot_histogram(values, bins=30, scale="log", xlabel="Zn (ppm, log scale)")
-fig.savefig("hist_log.png", dpi=150, bbox_inches="tight")
-plt.close("all")
+fig, ax = plot_histogram(zn, bins=30, scale="log", xlabel="Zn (ppm, log scale)")
+plt.show()
 ```
 
-## Box / Violin
+![Histogram Linear](images/histogram_linear.png)
+![Histogram Log](images/histogram_log.png)
 
-```python
-import matplotlib.pyplot as plt
-import pandas as pd
-from minexpy.statviz import plot_box_violin
+## `plot_box_violin`
 
-df = pd.DataFrame(
-    {
-        "Zn": [45.2, 52.3, 38.7, 61.2, 49.8, 55.1],
-        "Cu": [12.5, 15.3, 11.2, 18.4, 14.1, 16.0],
-        "Pb": [8.9, 9.7, 8.1, 10.5, 9.1, 9.9],
-    }
-)
-
-fig, ax = plot_box_violin(df, kind="box", ylabel="Concentration (ppm)")
-fig.savefig("box_plot.png", dpi=150, bbox_inches="tight")
-
-fig, ax = plot_box_violin(df, kind="violin", ylabel="Concentration (ppm)")
-fig.savefig("violin_plot.png", dpi=150, bbox_inches="tight")
-plt.close("all")
-```
-
-## ECDF, Q-Q, P-P, Scatter
+Visualize Zn and Cu distributions as box and violin plots:
 
 ```python
 import matplotlib.pyplot as plt
 import numpy as np
-from minexpy.statviz import plot_ecdf, plot_qq, plot_pp, plot_scatter
+from minexpy.statviz import plot_box_violin
 
-rng = np.random.default_rng(7)
+rng = np.random.default_rng(42)
 zn = rng.lognormal(mean=2.2, sigma=0.35, size=250)
-cu = 0.3 * zn + rng.normal(0, 1.5, size=250)
+cu = 0.35 * zn + rng.normal(0, 1.5, size=250)
+
+fig, ax = plot_box_violin({"Zn": zn, "Cu": cu}, kind="box", ylabel="Concentration (ppm)")
+plt.show()
+
+fig, ax = plot_box_violin({"Zn": zn, "Cu": cu}, kind="violin", ylabel="Concentration (ppm)")
+plt.show()
+```
+
+![Box Plot](images/box_plot.png)
+![Violin Plot](images/violin_plot.png)
+
+## `plot_ecdf`
+
+Compare empirical cumulative distributions for Zn and Cu:
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+from minexpy.statviz import plot_ecdf
+
+rng = np.random.default_rng(42)
+zn = rng.lognormal(mean=2.2, sigma=0.35, size=250)
+cu = 0.35 * zn + rng.normal(0, 1.5, size=250)
 
 fig, ax = plot_ecdf({"Zn": zn, "Cu": cu}, xlabel="Concentration (ppm)")
-fig.savefig("ecdf.png", dpi=150, bbox_inches="tight")
+plt.show()
+```
 
-fig, ax = plot_qq(zn, distribution="norm", ylabel="Zn Quantiles")
-fig.savefig("qq_plot.png", dpi=150, bbox_inches="tight")
+![ECDF](images/ecdf.png)
+
+## `plot_qq`
+
+Check Zn sample quantiles against a normal reference:
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+from minexpy.statviz import plot_qq
+
+rng = np.random.default_rng(42)
+zn = rng.lognormal(mean=2.2, sigma=0.35, size=250)
+
+fig, ax = plot_qq(zn, distribution="norm", ylabel="Zn Sample Quantiles")
+plt.show()
+```
+
+![Q-Q Plot](images/qq_plot.png)
+
+## `plot_pp`
+
+Compare empirical vs theoretical cumulative probabilities:
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+from minexpy.statviz import plot_pp
+
+rng = np.random.default_rng(42)
+zn = rng.lognormal(mean=2.2, sigma=0.35, size=250)
 
 fig, ax = plot_pp(zn, distribution="norm", ylabel="Empirical Probability")
-fig.savefig("pp_plot.png", dpi=150, bbox_inches="tight")
+plt.show()
+```
+
+![P-P Plot](images/pp_plot.png)
+
+## `plot_scatter`
+
+Plot bivariate Zn-Cu relation with a fitted trend line:
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+from minexpy.statviz import plot_scatter
+
+rng = np.random.default_rng(42)
+zn = rng.lognormal(mean=2.2, sigma=0.35, size=250)
+cu = 0.35 * zn + rng.normal(0, 1.5, size=250)
 
 fig, ax = plot_scatter(
     zn,
@@ -81,6 +134,7 @@ fig, ax = plot_scatter(
     ylabel="Cu (ppm)",
     title="Zn vs Cu",
 )
-fig.savefig("scatter_plot.png", dpi=150, bbox_inches="tight")
-plt.close("all")
+plt.show()
 ```
+
+![Scatter Plot](images/scatter_plot.png)

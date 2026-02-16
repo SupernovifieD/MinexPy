@@ -5,12 +5,13 @@ This package provides tools for geochemical analysis, statistical processing,
 and visualization for geological sample data.
 """
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 # Import main modules for easy access
 from . import stats
 from . import correlation
 from . import statviz
+from . import mapping
 
 # Export commonly used classes and functions
 from .stats import (
@@ -44,11 +45,28 @@ from .statviz import (
     plot_pp,
     plot_scatter,
 )
+from .mapping import (
+    GeochemDataWarning,
+    GeochemPrepareMetadata,
+    GridDefinition,
+    InterpolationResult,
+    prepare,
+    create_grid,
+    interpolate,
+    interpolate_nearest,
+    interpolate_triangulation,
+    interpolate_idw,
+    interpolate_minimum_curvature,
+    plot_map,
+    viz,
+    invert_values_for_display,
+)
 
 __all__ = [
     'stats',
     'correlation',
     'statviz',
+    'mapping',
     'StatisticalAnalyzer',
     'describe',
     'skewness',
@@ -74,4 +92,18 @@ __all__ = [
     'plot_qq',
     'plot_pp',
     'plot_scatter',
+    'GeochemDataWarning',
+    'GeochemPrepareMetadata',
+    'GridDefinition',
+    'InterpolationResult',
+    'prepare',
+    'create_grid',
+    'interpolate',
+    'interpolate_nearest',
+    'interpolate_triangulation',
+    'interpolate_idw',
+    'interpolate_minimum_curvature',
+    'plot_map',
+    'viz',
+    'invert_values_for_display',
 ]

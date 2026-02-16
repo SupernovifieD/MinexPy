@@ -7,6 +7,7 @@ This section explains how to apply MinexPy's core analysis modules in practical 
 - `minexpy.stats`: Descriptive statistics, spread metrics, and distribution diagnostics.
 - `minexpy.correlation`: Pairwise and matrix-based correlation analysis (linear, rank-based, robust, and nonlinear).
 - `minexpy.statviz`: Statistical visualization tools for distribution checks and bivariate analysis.
+- `minexpy.mapping`: Geochemical point preparation, grid creation, interpolation, and map composition.
 
 ## Recommended Workflow
 
@@ -16,5 +17,7 @@ This section explains how to apply MinexPy's core analysis modules in practical 
 
 ## Guides in This Section
 
+- [Statistical Analysis](statistical-analysis.md)
 - [Correlation Analysis](correlation-analysis.md)
 - [Statistical Visualization](statistical-visualization.md)
+- [Geochemical Mapping](geochemical-mapping.md)

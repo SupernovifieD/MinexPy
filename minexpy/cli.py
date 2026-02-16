@@ -54,6 +54,7 @@ AVAILABLE MODULES
   minexpy.stats       Statistical analysis module for geoscience data
   minexpy.correlation Correlation analysis utilities
   minexpy.statviz     Statistical visualization utilities
+  minexpy.mapping     Mapping data
 
 MAIN CLASSES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -100,6 +101,19 @@ VISUALIZATION FUNCTIONS
   plot_qq                 Q-Q diagnostic plot
   plot_pp                 P-P diagnostic plot
   plot_scatter            Scatter plot (+ optional trend line)
+
+MAPPING FUNCTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  prepare                 Load/clean/project point data
+  create_grid             Build base mesh grid from coordinates
+  interpolate             Dispatch interpolation by method
+  interpolate_nearest     Nearest-neighbor interpolation
+  interpolate_triangulation  Triangulation interpolation (griddata)
+  interpolate_idw         Inverse Distance Weighting interpolation
+  interpolate_minimum_curvature  Iterative minimum-curvature interpolation
+  plot_map                Compose final map from pipeline outputs
+  viz                     Alias for plot_map
+  invert_values_for_display  Invert transformed values for display
 
 QUICK START
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -168,6 +182,20 @@ DEPENDENCIES
   • pandas       (>=2.0.0)   - Data manipulation
   • scipy        (>=1.10.0)  - Scientific computing
   • matplotlib   (>=3.7.0)   - Statistical visualization
+  • openpyxl     (>=3.1.0)   - Excel file support
+
+MAPPING FUNCTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  prepare                   Load/clean/project point data
+  create_grid               Build base mesh grid from coordinates
+  interpolate               Dispatch interpolation by method
+  interpolate_nearest       Nearest-neighbor interpolation
+  interpolate_triangulation Triangulation interpolation (griddata)
+  interpolate_idw           Inverse Distance Weighting interpolation
+  interpolate_minimum_curvature Iterative minimum-curvature interpolation
+  plot_map                  Compose final map from pipeline outputs
+  viz                       Alias for plot_map
+  invert_values_for_display Invert transformed values for display
 
 LINKS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

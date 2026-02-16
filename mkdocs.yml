@@ -68,11 +68,14 @@ nav:
   - Research Notes:
     - Overview: research-notes/index.md
     - Statistical Foundations: research-notes/statistical-foundations.md
+    - Geochemical Mapping Foundations: research-notes/mapping-foundations.md
   - User Guide:
     - Overview: user-guide/overview.md
+    - Statistical Analysis: user-guide/statistical-analysis.md
     - Correlation Analysis: user-guide/correlation-analysis.md
     - Statistical Visualization: user-guide/statistical-visualization.md
+    - Geochemical Mapping: user-guide/geochemical-mapping.md
   - API Reference:
-    - API: api/index.md
-  - Examples:
-    - Examples: examples/index.md
+    - Overview: api/index.md
+    - Statistics API: api/statistics.md
+    - Mapping API: api/mapping.md
