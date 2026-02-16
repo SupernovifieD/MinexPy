@@ -27,13 +27,15 @@ Generate a map in one call:
     ... )
 """
 
-from typing import Dict, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 import warnings
 
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
+from matplotlib.colorbar import Colorbar
 from matplotlib.figure import Figure
 from matplotlib.patches import Rectangle
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 import pandas as pd
 
@@ -227,10 +229,12 @@ def _draw_surface_and_colorbar(
     show_contours: bool,
     contour_levels: int,
     colorbar_label: str,
-) -> None:
+) -> Colorbar:
     """Draw interpolated surface, optional contours, and colorbar."""
     mesh = ax.pcolormesh(grid.Xi, grid.Yi, Z_display, cmap=cmap, shading="auto")
-    colorbar = ax.figure.colorbar(mesh, ax=ax)
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="4%", pad=0.12)
+    colorbar = ax.figure.colorbar(mesh, cax=cax)
     colorbar.set_label(colorbar_label)
 
     if show_contours and np.isfinite(Z_display).any():
@@ -243,6 +247,7 @@ def _draw_surface_and_colorbar(
             linewidths=0.6,
             alpha=0.65,
         )
+    return colorbar
 
 
 def _draw_north_arrow(ax: Axes) -> None:
@@ -302,13 +307,12 @@ def _infer_units_from_metadata(
     return None
 
 
-def _draw_scale_bar_and_numeric_scale(
+def _draw_scale_bar(
     ax: Axes,
     grid: GridDefinition,
     units: Optional[str],
-    show_numeric_scale: bool,
 ) -> None:
-    """Draw map scale bar and optional numeric 1:n annotation."""
+    """Draw map scale bar inside the map frame."""
     xmin, xmax, ymin, ymax = grid.padded_extent
     x_span = xmax - xmin
     y_span = ymax - ymin
@@ -341,42 +345,45 @@ def _draw_scale_bar_and_numeric_scale(
         zorder=5,
     )
 
+
+def _compute_numeric_scale_text(
+    ax: Axes,
+    grid: GridDefinition,
+    units: Optional[str],
+    show_numeric_scale: bool,
+) -> Optional[str]:
+    """Compute numeric 1:n scale text for external metadata panel."""
     if not show_numeric_scale:
-        return
+        return None
 
     if not _is_metric_unit(units):
         _warn_ignored(
             "Numeric scale (1:n) was skipped because map units are not metric or not provided."
         )
-        return
+        return None
+
+    xmin, xmax, _, _ = grid.padded_extent
+    x_span = xmax - xmin
+    if x_span <= 0:
+        return None
 
     ax.figure.canvas.draw()
     bbox = ax.get_window_extent()
     ax_width_m = (bbox.width / ax.figure.dpi) * 0.0254
     if ax_width_m <= 0:
-        return
+        return None
 
     denominator = x_span / ax_width_m
     if denominator <= 0:
-        return
-
-    ax.text(
-        x0,
-        y0 - 1.6 * tick_h,
-        f"1:{int(round(denominator)):,}",
-        ha="left",
-        va="top",
-        fontsize=8,
-        zorder=5,
-    )
+        return None
+    return f"1:{int(round(denominator)):,}"
 
 
-def _draw_crs_info_block(
-    ax: Axes,
+def _collect_crs_info_lines(
     crs_info: Optional[Dict[str, str]],
     prepare_metadata: Optional[GeochemPrepareMetadata],
-) -> Optional[str]:
-    """Render CRS/projection information block and return inferred units."""
+) -> Tuple[Optional[str], List[str]]:
+    """Collect CRS/projection lines and inferred units."""
     info: Dict[str, str] = {}
     if prepare_metadata is not None:
         info["crs"] = prepare_metadata.target_crs
@@ -403,20 +410,46 @@ def _draw_crs_info_block(
     for key, label in key_map:
         if key in info and str(info[key]).strip():
             lines.append(f"{label}: {info[key]}")
+    return units, lines
 
-    if lines:
-        ax.text(
-            0.01,
-            0.01,
-            "\n".join(lines),
-            transform=ax.transAxes,
-            ha="left",
-            va="bottom",
-            fontsize=8,
-            bbox={"facecolor": "white", "alpha": 0.7, "edgecolor": "0.6", "boxstyle": "round,pad=0.25"},
-            zorder=6,
+
+def _draw_external_info_panel(
+    fig: Figure,
+    colorbar: Colorbar,
+    info_lines: List[str],
+) -> Optional[Axes]:
+    """Draw metadata panel outside the map, adjacent to the colorbar."""
+    if not info_lines:
+        return None
+
+    cbar_pos = colorbar.ax.get_position()
+    panel_gap = 0.03
+    right_space = 0.98 - (cbar_pos.x1 + panel_gap)
+    panel_width = min(0.22, right_space)
+    if panel_width < 0.10:
+        _warn_ignored(
+            "Could not allocate enough horizontal space for external info panel; metadata text was skipped."
         )
-    return units
+        return None
+
+    # Keep panel at bottom-right of figure, aligned with the map x-axis.
+    line_count = max(1, len(info_lines))
+    base_height = 0.11 + 0.026 * line_count
+    panel_height = min(cbar_pos.height * 0.55, max(cbar_pos.height * 0.22, base_height))
+    panel_rect = [cbar_pos.x1 + panel_gap, cbar_pos.y0, panel_width, panel_height]
+
+    panel_ax = fig.add_axes(panel_rect)
+    panel_ax.set_axis_off()
+    panel_ax.text(
+        0.02,
+        0.04,
+        "\n".join(info_lines),
+        ha="left",
+        va="bottom",
+        fontsize=8,
+        bbox={"facecolor": "white", "alpha": 0.85, "edgecolor": "0.6", "boxstyle": "round,pad=0.25"},
+    )
+    return panel_ax
 
 
 def _apply_coordinate_grid_and_neatline(
@@ -660,6 +693,7 @@ def plot_map(
 
     if ax is None:
         fig, map_ax = plt.subplots(figsize=figsize)
+        fig.subplots_adjust(right=0.78)
     else:
         map_ax = ax
         fig = map_ax.figure
@@ -669,7 +703,7 @@ def plot_map(
         if title_parts is not None
         else interpolation_used.value_col
     )
-    _draw_surface_and_colorbar(
+    colorbar = _draw_surface_and_colorbar(
         ax=map_ax,
         grid=grid_used,
         Z_display=Z_display,
@@ -708,19 +742,27 @@ def plot_map(
     if show_north_arrow:
         _draw_north_arrow(map_ax)
 
-    units = _draw_crs_info_block(
-        ax=map_ax,
+    units, info_lines = _collect_crs_info_lines(
         crs_info=crs_info,
         prepare_metadata=metadata_used,
     )
 
     if show_scale_bar:
-        _draw_scale_bar_and_numeric_scale(
+        _draw_scale_bar(
             ax=map_ax,
             grid=grid_used,
             units=units,
-            show_numeric_scale=show_numeric_scale,
         )
+    numeric_scale = _compute_numeric_scale_text(
+        ax=map_ax,
+        grid=grid_used,
+        units=units,
+        show_numeric_scale=show_numeric_scale,
+    )
+    if numeric_scale is not None:
+        info_lines.insert(0, f"Scale: {numeric_scale}")
+
+    _draw_external_info_panel(fig=fig, colorbar=colorbar, info_lines=info_lines)
 
     _apply_coordinate_grid_and_neatline(
         ax=map_ax,
