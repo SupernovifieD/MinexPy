@@ -130,3 +130,78 @@ create_grid(
 
 Step 2 only constructs grid geometry. Interpolation of geochemical values is
 deferred to Step 3.
+
+## Step 3: Interpolation Surface Generation
+
+### Scope
+
+Step 3 interpolates prepared geochemical values onto Step 2 mesh nodes:
+
+- nearest neighbor interpolation
+- triangulation interpolation using `scipy.interpolate.griddata`
+- inverse distance weighting (IDW)
+- true grid-based minimum curvature (iterative biharmonic solver)
+
+### Public API (Step 3)
+
+Implemented in `minexpy/mapping/interpolation.py`:
+
+- `interpolate(...)` dispatcher
+- `interpolate_nearest(...)`
+- `interpolate_triangulation(...)`
+- `interpolate_idw(...)`
+- `interpolate_minimum_curvature(...)`
+- `InterpolationResult`
+
+### Input Contract
+
+All Step 3 methods accept:
+
+- `data`: prepared `pandas.DataFrame` (typically from `prepare`)
+- `grid`: `GridDefinition` (from `create_grid`)
+- `value_col`: default `"value"`
+
+### Dispatcher
+
+```python
+interpolate(
+    data,
+    grid,
+    method="triangulation",
+    value_col="value",
+    **kwargs,
+)
+```
+
+Supported method names:
+
+- `"nearest"`
+- `"triangulation"`
+- `"idw"`
+- `"minimum_curvature"`
+
+### Method Defaults
+
+- Triangulation: `kind="linear"` (optional `kind="cubic"`)
+- IDW: `power=2.0`, `k=12`, `radius=None`, `eps=1e-12`
+- Minimum curvature:
+  - `max_iter=2000`
+  - `tolerance=1e-4`
+  - `relaxation=1.0`
+  - `mask_outside_hull=False`
+
+### Key Behaviors
+
+- Triangulation keeps `NaN` outside convex hull.
+- IDW uses exact values for zero-distance matches.
+- Minimum curvature enforces mapped sample nodes as fixed constraints and
+  reports convergence diagnostics.
+
+### Output
+
+All Step 3 methods return `InterpolationResult`, containing:
+
+- `grid` (for x/y mesh context)
+- `Z` interpolated surface (`ny x nx`)
+- `valid_mask`
+- method name, parameters, and optional convergence diagnostics

@@ -106,6 +106,11 @@ MAPPING FUNCTIONS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   prepare                 Load/clean/project point data
   create_grid             Build base mesh grid from coordinates
+  interpolate             Dispatch interpolation by method
+  interpolate_nearest     Nearest-neighbor interpolation
+  interpolate_triangulation  Triangulation interpolation (griddata)
+  interpolate_idw         Inverse Distance Weighting interpolation
+  interpolate_minimum_curvature  Iterative minimum-curvature interpolation
   invert_values_for_display  Invert transformed values for display
 
 QUICK START
@@ -181,6 +186,11 @@ MAPPING FUNCTIONS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   prepare                   Load/clean/project point data
   create_grid               Build base mesh grid from coordinates
+  interpolate               Dispatch interpolation by method
+  interpolate_nearest       Nearest-neighbor interpolation
+  interpolate_triangulation Triangulation interpolation (griddata)
+  interpolate_idw           Inverse Distance Weighting interpolation
+  interpolate_minimum_curvature Iterative minimum-curvature interpolation
   invert_values_for_display Invert transformed values for display
 
 LINKS

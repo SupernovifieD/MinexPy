@@ -49,8 +49,14 @@ from .mapping import (
     GeochemDataWarning,
     GeochemPrepareMetadata,
     GridDefinition,
+    InterpolationResult,
     prepare,
     create_grid,
+    interpolate,
+    interpolate_nearest,
+    interpolate_triangulation,
+    interpolate_idw,
+    interpolate_minimum_curvature,
     invert_values_for_display,
 )
 
@@ -87,7 +93,13 @@ __all__ = [
     'GeochemDataWarning',
     'GeochemPrepareMetadata',
     'GridDefinition',
+    'InterpolationResult',
     'prepare',
     'create_grid',
+    'interpolate',
+    'interpolate_nearest',
+    'interpolate_triangulation',
+    'interpolate_idw',
+    'interpolate_minimum_curvature',
     'invert_values_for_display',
 ]
