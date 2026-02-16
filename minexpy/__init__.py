@@ -48,7 +48,9 @@ from .statviz import (
 from .mapping import (
     GeochemDataWarning,
     GeochemPrepareMetadata,
+    GridDefinition,
     prepare,
+    create_grid,
     invert_values_for_display,
 )
 
@@ -84,6 +86,8 @@ __all__ = [
     'plot_scatter',
     'GeochemDataWarning',
     'GeochemPrepareMetadata',
+    'GridDefinition',
     'prepare',
+    'create_grid',
     'invert_values_for_display',
 ]

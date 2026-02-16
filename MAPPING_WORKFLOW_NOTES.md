@@ -75,3 +75,58 @@ Rows that become invalid after transform (non-finite values) are warned and drop
 - log10: inverse with power-10
 - custom transform: raises because inverse is unknown
 
+## Step 2: Grid Creation and Mesh
+
+### Scope
+
+Step 2 builds the base map grid geometry from prepared coordinates:
+
+- compute raw extent (`xmin`, `xmax`, `ymin`, `ymax`)
+- apply relative padding (`padding_ratio`, default `0.05`)
+- build 1D axes with `np.arange`
+- create mesh arrays with `np.meshgrid`
+- flatten nodes to `grid_points` for interpolation input
+
+### Public API (Step 2)
+
+Implemented in `minexpy/mapping/gridding.py`:
+
+- `create_grid(...)`
+- `GridDefinition`
+
+### API Contract
+
+```python
+create_grid(
+    data: pd.DataFrame,
+    cell_size: float,
+    x_col: str = "x",
+    y_col: str = "y",
+    padding_ratio: float = 0.05,
+) -> GridDefinition
+```
+
+### Validation Rules
+
+- `data` must be a non-empty DataFrame
+- `x_col` and `y_col` must exist
+- `cell_size` must be finite and greater than zero
+- `padding_ratio` must be finite and non-negative
+- coordinate columns must be fully finite numeric values (fail fast if invalid)
+- zero range on x or y raises `ValueError`
+
+### GridDefinition Output Fields
+
+- `x_col`, `y_col`
+- `raw_extent`: `(xmin, xmax, ymin, ymax)`
+- `padded_extent`: `(xmin, xmax, ymin, ymax)`
+- `cell_size`, `padding_ratio`
+- `xi`, `yi`
+- `Xi`, `Yi`
+- `grid_points` with shape `(n_nodes, 2)`
+- `nx`, `ny`, `n_nodes`
+
+### Notes
+
+Step 2 only constructs grid geometry. Interpolation of geochemical values is
+deferred to Step 3.

@@ -102,6 +102,12 @@ VISUALIZATION FUNCTIONS
   plot_pp                 P-P diagnostic plot
   plot_scatter            Scatter plot (+ optional trend line)
 
+MAPPING FUNCTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  prepare                 Load/clean/project point data
+  create_grid             Build base mesh grid from coordinates
+  invert_values_for_display  Invert transformed values for display
+
 QUICK START
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   import numpy as np
@@ -170,6 +176,12 @@ DEPENDENCIES
   • scipy        (>=1.10.0)  - Scientific computing
   • matplotlib   (>=3.7.0)   - Statistical visualization
   • openpyxl     (>=3.1.0)   - Excel file support
+
+MAPPING FUNCTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  prepare                   Load/clean/project point data
+  create_grid               Build base mesh grid from coordinates
+  invert_values_for_display Invert transformed values for display
 
 LINKS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
