@@ -75,5 +75,6 @@ nav:
     - Statistical Visualization: user-guide/statistical-visualization.md
     - Geochemical Mapping: user-guide/geochemical-mapping.md
   - API Reference:
-    - API: api/index.md
+    - Overview: api/index.md
+    - Statistics API: api/statistics.md
     - Mapping API: api/mapping.md
