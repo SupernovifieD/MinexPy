@@ -73,5 +73,7 @@ nav:
     - Statistical Analysis: user-guide/statistical-analysis.md
     - Correlation Analysis: user-guide/correlation-analysis.md
     - Statistical Visualization: user-guide/statistical-visualization.md
+    - Geochemical Mapping: user-guide/geochemical-mapping.md
   - API Reference:
     - API: api/index.md
+    - Mapping API: api/mapping.md

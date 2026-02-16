@@ -7,6 +7,7 @@ A comprehensive toolkit for geoscience researchers providing tools for geochemic
 - **Statistical Analysis**: Comprehensive statistical tools for geochemical data
 - **Correlation Analysis**: Pearson, Spearman, Kendall, robust, nonlinear, and partial correlation tools
 - **Statistical Visualization**: Histogram, box/violin, ECDF, Q-Q, P-P, and scatter diagnostics
+- **Geochemical Mapping**: Point preparation, mesh generation, interpolation, and final map composition
 - **Data Processing**: Efficient data preprocessing and cleaning utilities
 
 ## Installation

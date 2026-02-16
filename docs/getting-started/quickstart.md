@@ -172,6 +172,37 @@ plot_scatter(zn, cu, add_trendline=True, xlabel="Zn (ppm)", ylabel="Cu (ppm)")
 plt.show()
 ```
 
+### Geochemical Mapping
+
+Run the mapping workflow from raw points to a final interpolated map:
+
+```python
+import pandas as pd
+from minexpy.mapping import plot_map
+
+df = pd.DataFrame(
+    {
+        "lon": [44.10, 44.18, 44.22, 44.05, 44.28],
+        "lat": [36.55, 36.61, 36.49, 36.70, 36.64],
+        "Zn": [35.0, 48.0, 42.0, 30.0, 55.0],
+    }
+)
+
+fig, ax = plot_map(
+    data=df,
+    x_col="lon",
+    y_col="lat",
+    value_col="Zn",
+    source_crs="EPSG:4326",
+    target_crs="EPSG:3857",
+    cell_size=200.0,
+    method="idw",
+    title_parts={"what": "Zn (ppm) in Stream Sediments", "where": "Area X", "when": "2026"},
+    crs_info={"projection": "Web Mercator", "datum": "WGS84", "units": "m"},
+    footer="Author: MinexPy User | Data source: stream sediments",
+)
+```
+
 ## Next Steps
 
 - Read the [User Guide](../user-guide/overview.md) for detailed explanations

@@ -1,46 +1,39 @@
-# API Reference
+# Mapping API
 
-This section contains the complete API reference for MinexPy, automatically generated from the source code.
+This page provides detailed API references for mapping submodules.
 
-## Statistical Analysis Module
+## Data Loading and Preparation
 
-::: minexpy.stats
+::: minexpy.mapping.dataloader
     options:
       show_root_heading: true
       show_root_toc_entry: true
       show_source: true
       heading_level: 2
 
-## Correlation Module
+## Grid Generation
 
-::: minexpy.correlation
+::: minexpy.mapping.gridding
     options:
       show_root_heading: true
       show_root_toc_entry: true
       show_source: true
       heading_level: 2
 
-## Statistical Visualization Module
+## Interpolation
 
-::: minexpy.statviz
+::: minexpy.mapping.interpolation
     options:
       show_root_heading: true
       show_root_toc_entry: true
       show_source: true
       heading_level: 2
 
-## Mapping Module
+## Visualization and Map Composition
 
-::: minexpy.mapping
+::: minexpy.mapping.viz
     options:
       show_root_heading: true
       show_root_toc_entry: true
       show_source: true
       heading_level: 2
-
-## Main Package
-
-::: minexpy
-    options:
-      show_root_heading: true
-      show_root_toc_entry: true
