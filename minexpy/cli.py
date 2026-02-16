@@ -111,6 +111,8 @@ MAPPING FUNCTIONS
   interpolate_triangulation  Triangulation interpolation (griddata)
   interpolate_idw         Inverse Distance Weighting interpolation
   interpolate_minimum_curvature  Iterative minimum-curvature interpolation
+  plot_map                Compose final map from pipeline outputs
+  viz                     Alias for plot_map
   invert_values_for_display  Invert transformed values for display
 
 QUICK START
@@ -191,6 +193,8 @@ MAPPING FUNCTIONS
   interpolate_triangulation Triangulation interpolation (griddata)
   interpolate_idw           Inverse Distance Weighting interpolation
   interpolate_minimum_curvature Iterative minimum-curvature interpolation
+  plot_map                  Compose final map from pipeline outputs
+  viz                       Alias for plot_map
   invert_values_for_display Invert transformed values for display
 
 LINKS

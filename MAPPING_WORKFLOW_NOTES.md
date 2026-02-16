@@ -205,3 +205,71 @@ All Step 3 methods return `InterpolationResult`, containing:
 - `Z` interpolated surface (`ny x nx`)
 - `valid_mask`
 - method name, parameters, and optional convergence diagnostics
+
+## Step 4: Final Map Composition and Visualization
+
+### Scope
+
+Step 4 composes Steps 1-3 into a single final map API with cartographic
+elements for reporting and publication:
+
+- map title
+- colorbar legend
+- north arrow
+- scale bar and optional numeric 1:n scale
+- CRS/projection info block
+- coordinate grid lines
+- neatline / map frame
+- optional locator inset
+- footer credits / metadata text
+
+### Public API (Step 4)
+
+Implemented in `minexpy/mapping/viz.py`:
+
+- `plot_map(...)` (canonical)
+- `viz(...)` (alias)
+
+### Input Modes
+
+The API supports mixed raw/precomputed inputs with stage precedence:
+
+1. `interpolation_result` (Step 3) takes highest priority
+2. else `grid` (Step 2) takes priority
+3. else `prepared` (Step 1) takes priority
+4. else run full pipeline from raw `data`
+
+When mixed inputs conflict, downstream precomputed objects are used and
+warnings are emitted for ignored upstream arguments.
+
+### Signature Highlights
+
+`plot_map` accepts:
+
+- pipeline inputs and options (`prepare`, `create_grid`, `interpolate`)
+- style/layout controls
+- optional `locator_config` dict for inset rendering
+- optional free-text `footer`
+
+Return type:
+
+- `(fig, ax)` as Matplotlib figure and primary axes
+
+### Locator Config
+
+Optional `locator_config` keys:
+
+- `enabled` (bool)
+- `position` (axes-fraction rectangle)
+- `extent` (xmin, xmax, ymin, ymax)
+- `show_main_bbox` (bool)
+- `frame_label` (str)
+
+If `enabled=True` but required configuration is invalid, locator rendering is
+skipped with warning.
+
+### Display Value Policy
+
+For maps interpolated from transformed `value`, Step 4 attempts to invert
+surface values for display using Step 1 metadata when possible. If inverse
+metadata is unavailable, transformed values are displayed as-is with warning.

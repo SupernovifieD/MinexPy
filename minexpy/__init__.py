@@ -57,6 +57,8 @@ from .mapping import (
     interpolate_triangulation,
     interpolate_idw,
     interpolate_minimum_curvature,
+    plot_map,
+    viz,
     invert_values_for_display,
 )
 
@@ -101,5 +103,7 @@ __all__ = [
     'interpolate_triangulation',
     'interpolate_idw',
     'interpolate_minimum_curvature',
+    'plot_map',
+    'viz',
     'invert_values_for_display',
 ]

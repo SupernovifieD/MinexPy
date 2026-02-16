@@ -18,6 +18,10 @@ from .interpolation import (
     interpolate_idw,
     interpolate_minimum_curvature,
 )
+from .viz import (
+    plot_map,
+    viz,
+)
 
 __all__ = [
     "GeochemDataWarning",
@@ -32,4 +36,6 @@ __all__ = [
     "interpolate_triangulation",
     "interpolate_idw",
     "interpolate_minimum_curvature",
+    "plot_map",
+    "viz",
 ]
